@@ -279,3 +279,46 @@ body {
 body {
     padding-bottom: 80px; /* เพิ่ม padding ด้านล่างให้ body ถ้า FAB สูง */
 }
+
+/* css/style.css (ส่วนที่อาจจะต้องเพิ่ม/ปรับ) */
+
+/* ... (สไตล์เดิมของคุณ) ... */
+
+.menu-card-no-image .card-body {
+    padding: 0.75rem 1rem; /* ปรับ padding ของ card body */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* จัดให้อยู่กึ่งกลางแนวตั้งถ้ามีพื้นที่เหลือ */
+}
+
+.menu-card-no-image .card-title {
+    font-size: 0.95rem; /* ปรับขนาดฟอนต์ชื่อเมนูให้พอดี */
+    line-height: 1.3;
+}
+
+.menu-card-no-image .price {
+    font-size: 0.9rem; /* ปรับขนาดฟอนต์ราคา */
+    color: #28a745; /* สีเขียวสำหรับราคา */
+}
+
+.menu-card-no-image .add-to-cart-btn {
+    padding: 0.25rem 0.5rem; /* ทำให้ปุ่มเล็กลง */
+    font-size: 0.8rem; /* ปรับขนาดไอคอน/ฟอนต์ในปุ่ม */
+    line-height: 1; /* ให้ไอคอนอยู่กึ่งกลางปุ่ม */
+    border-color: #6200EA; /* สีเดียวกับ Primary button */
+    color: #6200EA;
+}
+.menu-card-no-image .add-to-cart-btn:hover {
+    background-color: #6200EA;
+    color: #fff;
+}
+
+.menu-card-no-image .small.text-muted { /* สไตล์สำหรับ Description */
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+/* ปรับ layout ของ d-flex ให้ชื่อเมนูขยายได้เต็มที่ */
+.menu-card-no-image .d-flex .flex-grow-1 {
+    min-width: 0; /* Allow text to shrink and wrap if needed */
+}
