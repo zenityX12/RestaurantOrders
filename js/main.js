@@ -111,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cartItemsDisplay.innerHTML = '<p class="text-muted fst-italic">ตะกร้ายังว่างอยู่</p>';
             submitOrderBtn.disabled = true;
         } else {
+            // ... (โค้ดสร้างรายการในตะกร้าเหมือนเดิม) ...
             const ul = document.createElement('ul');
             ul.className = 'list-group list-group-flush';
             cart.forEach(item => {
@@ -140,17 +141,19 @@ document.addEventListener('DOMContentLoaded', () => {
             ul.querySelectorAll('.increase-qty-btn').forEach(btn => btn.addEventListener('click', e => updateQuantity(e.currentTarget.dataset.itemid, 1)));
             ul.querySelectorAll('.remove-item-btn').forEach(btn => btn.addEventListener('click', e => removeFromCart(e.currentTarget.dataset.itemid)));
         }
+
         cartTotalSummaryEl.textContent = total.toFixed(2);
         cartItemCountSummaryEl.textContent = itemCount;
 
         // Update Navbar cart info & FAB
-        if(navCartCountEl) navCartCountEl.textContent = itemCount;
+        // *** ไม่ต้องอัปเดต navCartCountEl แล้ว ***
+        // if(navCartCountEl) navCartCountEl.textContent = itemCount;
         if(navCartTotalEl) navCartTotalEl.textContent = total.toFixed(2);
         if(fabCartCountEl) {
             fabCartCountEl.textContent = itemCount;
-            fabCartCountEl.style.display = itemCount > 0 ? 'inline-block' : 'none';
+            // แสดง badge บน FAB ต่อเมื่อมีสินค้าในตะกร้า
+            fabCartCountEl.style.display = itemCount > 0 ? 'inline-flex' : 'none'; // ใช้ inline-flex เพื่อให้ badge แสดงผลถูกตำแหน่ง
         }
-
     }
 
     // --- Menu Logic (ปรับปรุงให้แสดงตามหมวดหมู่ และไม่มีรูปภาพ) ---
