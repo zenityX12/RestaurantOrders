@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitOrderBtn = document.getElementById('submit-order-btn');
 
     // DOM Elements for Navbar Cart Info
-    // const navCartCountEl = document.getElementById('nav-cart-count'); // ไม่ได้ใช้แล้ว
     const navCartTotalEl = document.getElementById('nav-cart-total');
     const fabCartCountEl = document.getElementById('fab-cart-count');
 
@@ -35,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let cart = [];
     const CART_STORAGE_KEY_PREFIX = 'restaurant_cart_table_';
     let cartStorageKey = '';
-    let categoriesInOrder = []; // เก็บหมวดหมู่ตามลำดับที่ต้องการ
+    let categoriesInOrder = [];
 
     if (!tableNumber) {
         showUserMessage("ไม่พบหมายเลขโต๊ะ! กรุณาสแกน QR Code ที่โต๊ะของท่านอีกครั้ง", "danger");
@@ -155,13 +154,11 @@ document.addEventListener('DOMContentLoaded', () => {
         menuContainer.innerHTML = '';
         if(categoryNavPillsContainer) categoryNavPillsContainer.innerHTML = '';
 
-        const menu = await fetchData('getMenu');
+        const menu = await fetchData('getMenu', {}, 'GET', null, false); // Initial load, show spinner
         if(menuLoadingPlaceholder) menuLoadingPlaceholder.style.display = 'none';
 
         if (menu && Array.isArray(menu) && menu.length > 0) {
             menuData = menu;
-
-            // ดึงหมวดหมู่ตามลำดับที่ปรากฏใน menuData (ซึ่งควรเรียงตาม Google Sheet)
             const categoryOrder = [];
             const seenCategories = new Set();
             menuData.forEach(item => {
@@ -172,9 +169,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             categoriesInOrder = categoryOrder;
-
             renderCategoryPills();
-            renderMenu("all"); // แสดงเมนูทั้งหมด (ซึ่งจะถูกจัดกลุ่มตาม categoriesInOrder)
+            renderMenu("all");
         } else if (menu && menu.error) {
             showUserMessage(`ไม่สามารถโหลดเมนูได้: ${menu.error}`, "danger");
             menuContainer.innerHTML = '<p class="text-danger text-center col-12">ขออภัย, ไม่สามารถโหลดรายการอาหารได้</p>';
@@ -186,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderCategoryPills() {
         if (!categoryNavPillsContainer || categoriesInOrder.length === 0) return;
+        categoryNavPillsContainer.innerHTML = ''; // Clear old pills
 
         const allPillItem = document.createElement('li');
         allPillItem.className = 'nav-item';
@@ -210,41 +207,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderMenu(selectedCategory = "all") {
         menuContainer.innerHTML = '';
-
         if (selectedCategory === "all") {
-            // ถ้าเลือก "ทั้งหมด" ให้แสดงตามหมวดหมู่ที่กำหนดลำดับไว้ (categoriesInOrder)
             categoriesInOrder.forEach(categoryName => {
-                // ดึงรายการอาหารสำหรับหมวดหมู่นี้ (รายการจะเรียงตามลำดับใน menuData อยู่แล้ว)
                 const categoryItems = menuData.filter(item => (item.Category || "เมนูทั่วไป") === categoryName);
                 if (categoryItems.length > 0) {
                     const categoryHeader = document.createElement('h4');
                     categoryHeader.className = 'category-header col-12';
                     categoryHeader.textContent = categoryName;
-                    categoryHeader.id = `category-${categoryName.replace(/\s+/g, '-')}`; // สำหรับการนำทาง (ถ้ามี)
+                    categoryHeader.id = `category-${categoryName.replace(/\s+/g, '-')}`;
                     menuContainer.appendChild(categoryHeader);
-
-                    categoryItems.forEach(item => {
-                        renderSingleMenuItem(item);
-                    });
+                    categoryItems.forEach(item => renderSingleMenuItem(item));
                 }
             });
-            // ตรวจสอบว่าหลังจากวนลูปหมวดหมู่แล้ว มีการ render item จริงๆ หรือไม่
             if (menuContainer.children.length === 0 && menuData.length > 0) {
-                 // อาจจะเกิดกรณีที่ categoriesInOrder มี แต่ไม่มี item ที่ match เลย (ไม่ควรเกิดถ้า logic ถูก)
                  menuContainer.innerHTML = '<p class="text-muted text-center col-12">ไม่พบรายการอาหารสำหรับหมวดหมู่ที่ระบุ</p>';
             } else if (menuData.length === 0) {
                  menuContainer.innerHTML = '<p class="text-muted text-center col-12">ขออภัย, ไม่มีรายการอาหารในขณะนี้</p>';
             }
-
         } else {
-            // ถ้าเลือกหมวดหมู่อื่นๆ ก็แสดงเฉพาะรายการในหมวดนั้น
             const itemsToRender = menuData.filter(item => (item.Category || "เมนูทั่วไป") === selectedCategory);
             if (itemsToRender.length === 0) {
                 menuContainer.innerHTML = `<p class="text-muted text-center col-12">ไม่มีรายการอาหารในหมวดหมู่ "${selectedCategory}"</p>`;
             } else {
-                itemsToRender.forEach(item => {
-                    renderSingleMenuItem(item);
-                });
+                itemsToRender.forEach(item => renderSingleMenuItem(item));
             }
         }
     }
@@ -286,30 +271,52 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm("คุณต้องการยืนยันการสั่งซื้อรายการเหล่านี้ใช่หรือไม่?")) {
             return;
         }
-        submitOrderBtn.disabled = true;
-        const originalButtonText = submitOrderBtn.innerHTML;
-        submitOrderBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังส่ง...`;
-        const orderPayload = {
-            tableNumber: tableNumber,
-            items: cart.map(item => ({ itemId: item.itemId, quantity: item.quantity }))
-        };
-        const result = await fetchData("submitOrder", {}, 'POST', orderPayload);
-        submitOrderBtn.disabled = false;
-        submitOrderBtn.innerHTML = originalButtonText;
+        // User initiated action, show spinner
+        const result = await fetchData("submitOrder", {}, 'POST', cartToOrderPayload(), false);
+
         if (result && result.success) {
             showUserMessage(`สั่งอาหารสำเร็จ! ${result.message || ''}`, "success");
             cart = [];
             saveCartToStorage();
             renderCart();
-            loadCurrentTableOrders();
+            loadCurrentTableOrders(true); // Reload current orders, show spinner briefly
         } else {
             showUserMessage("เกิดข้อผิดพลาดในการสั่งอาหาร: " + (result ? result.message : "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้"), "danger");
         }
     });
 
+    function cartToOrderPayload() {
+        submitOrderBtn.disabled = true; // Disable button during processing
+        const originalButtonText = submitOrderBtn.innerHTML;
+        submitOrderBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังส่ง...`;
+
+        const payload = {
+            tableNumber: tableNumber,
+            items: cart.map(item => ({ itemId: item.itemId, quantity: item.quantity }))
+        };
+
+        // Restore button state after fetch (could be in a .finally block if fetchData returned a promise that was handled here)
+        // For now, we'll assume fetchData handles spinner and we restore button in submitOrderBtn's main logic.
+        // This is a simplified approach.
+        // A more robust way would be to handle button state around the fetchData call.
+        setTimeout(() => { // Simulate a delay for restoration if needed, or tie to fetch completion
+             submitOrderBtn.disabled = (cart.length === 0);
+             submitOrderBtn.innerHTML = originalButtonText;
+        }, 500); // Adjust delay as needed, or tie to actual fetch completion
+
+        return payload;
+    }
+
+
     // --- Current Order Display Logic ---
-    async function loadCurrentTableOrders() {
-        const orders = await fetchData('getOrdersByTable', { table: tableNumber });
+    async function loadCurrentTableOrders(isInitialLoad = false) {
+        const orders = await fetchData('getOrdersByTable', { table: tableNumber }, 'GET', null, !isInitialLoad);
+
+        if (!orders && !isInitialLoad) {
+            console.warn("Background update for current orders failed or returned no data.");
+            return;
+        }
+
         currentOrderItemsDisplay.innerHTML = '';
         let currentTotal = 0;
         if (orders && Array.isArray(orders) && orders.length > 0) {
@@ -328,9 +335,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentTotal += parseFloat(item.Subtotal);
             });
             currentOrderItemsDisplay.appendChild(ul);
-        } else if (orders && orders.error) {
+        } else if (orders && orders.error && isInitialLoad) {
              currentOrderItemsDisplay.innerHTML = `<p class="text-danger">เกิดข้อผิดพลาด: ${orders.error}</p>`;
-        } else {
+        } else if (isInitialLoad || (orders && orders.length === 0)) {
             currentOrderItemsDisplay.innerHTML = '<p class="text-muted fst-italic">ยังไม่มีรายการที่สั่งสำหรับโต๊ะนี้</p>';
         }
         currentOrderTotalEl.textContent = currentTotal.toFixed(2);
@@ -346,6 +353,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initial Load and Polling ---
     loadMenu();
     loadCartFromStorage();
-    loadCurrentTableOrders();
-    setInterval(loadCurrentTableOrders, 30000); // 30 seconds
+    loadCurrentTableOrders(true);
+
+    setInterval(() => {
+        loadCurrentTableOrders(false);
+    }, 60000); // อัปเดตรายการที่สั่งทุก 1 นาที (ปรับได้)
 });
