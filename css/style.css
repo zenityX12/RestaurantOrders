@@ -322,3 +322,77 @@ body {
 .menu-card-no-image .d-flex .flex-grow-1 {
     min-width: 0; /* Allow text to shrink and wrap if needed */
 }
+
+/* css/style.css (ส่วนที่อาจจะต้องเพิ่ม/ปรับ) */
+
+/* ... (สไตล์เดิมของคุณ) ... */
+
+.navbar {
+    /* background-color: #ffffff; /* ถ้าต้องการให้ Navbar มีสีพื้นหลัง */
+    /* box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075) !important; /* เพิ่ม !important ถ้า Bootstrap class อื่น override */
+    border-bottom: 1px solid #e0e0e0; /* เพิ่มเส้นขอบล่างให้ Navbar ชัดเจนขึ้น */
+    padding-top: 0.75rem; /* ปรับ padding ของ navbar เล็กน้อย */
+    padding-bottom: 0.75rem;
+}
+
+.navbar .container {
+    /* ทำให้ container ใน navbar ขยายเต็มความกว้างและจัดเรียง item */
+    /* d-flex justify-content-between align-items-center ถูกใส่ใน HTML แล้ว */
+}
+
+.navbar-brand-text {
+    font-size: 1rem; /* ปรับขนาดฟอนต์ชื่อร้านให้พอดี */
+}
+
+#nav-cart-total {
+    font-weight: bold;
+    font-size: 0.9rem; /* ปรับขนาดฟอนต์ยอดรวมบน Navbar */
+}
+.navbar-text { /* เพิ่มเพื่อให้จัดกึ่งกลางแนวตั้งได้ดีขึ้นกับ navbar-brand */
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+}
+
+
+/* Floating Action Button (FAB) for scrolling */
+.scroll-to-cart-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1030;
+    background-color: #6200EA; /* สี Primary หรือสีที่คุณต้องการ */
+    border-color: #6200EA;
+    color: #fff; /* สีไอคอน */
+    width: 56px; /* ขนาดมาตรฐานของ FAB */
+    height: 56px;
+    padding: 0; /* ลบ padding เดิมเพื่อให้ไอคอนอยู่กึ่งกลาง */
+    display: inline-flex; /* ใช้ flex เพื่อจัดไอคอนกึ่งกลาง */
+    align-items: center;
+    justify-content: center;
+}
+.scroll-to-cart-btn:hover {
+    background-color: #3700B3; /* สี Primary ที่เข้มขึ้น */
+    border-color: #3700B3;
+}
+.scroll-to-cart-btn i { /* ขนาดไอคอนใน FAB */
+    font-size: 1.5rem;
+}
+
+#fab-cart-count {
+    font-size: 0.7rem;
+    line-height: 1;
+    padding: 0.2em 0.5em; /* ปรับ padding ของ badge */
+    /* top: 0; */ /* ตำแหน่งอาจจะต้องปรับละเอียดอีกครั้ง */
+    /* start: 100%; */
+    /* transform: translate(-50%, -50%); /* ปรับ transform ให้ badge อยู่มุมๆ */
+    /* ทำให้ badge อยู่มุมขวาบนของ FAB */
+    position: absolute;
+    top: -5px; /* ปรับตำแหน่งตามความเหมาะสม */
+    right: -5px; /* ปรับตำแหน่งตามความเหมาะสม */
+
+}
+
+/* ให้ footer ไม่ทับปุ่ม FAB */
+body {
+    padding-bottom: 90px; /* เพิ่ม padding ด้านล่างให้ body (56px ของ FAB + 20px margin + safety) */
+}
