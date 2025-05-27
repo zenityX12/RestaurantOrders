@@ -202,3 +202,80 @@ body {
         max-width: none;
     }
 }
+/* css/style.css (ส่วนที่อาจจะต้องเพิ่ม) */
+
+.navbar-brand-text {
+    font-weight: normal; /* ปรับตามความชอบ */
+}
+
+#nav-cart-count, #nav-cart-total {
+    font-weight: bold;
+}
+
+.category-header {
+    background-color: #e9ecef; /* สีพื้นหลังหมวดหมู่ */
+    padding: 0.5rem 1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+    font-weight: bold;
+    color: #495057;
+    font-size: 1.1rem; /* ปรับขนาดฟอนต์ */
+}
+
+.menu-card-no-image .card-body {
+    padding-top: 1rem; /* ปรับ padding ด้านบนเมื่อไม่มีรูป */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* จัดให้ปุ่มอยู่ล่างสุด */
+}
+
+.menu-card-no-image .card-title {
+    font-size: 1rem; /* ปรับขนาดฟอนต์ชื่อเมนู */
+}
+.menu-card-no-image .price {
+    font-size: 1rem; /* ปรับขนาดฟอนต์ราคา */
+    text-align: right; /* ราคาชิดขวา */
+}
+.menu-card-no-image .add-to-cart-btn {
+    font-size: 0.9rem; /* ปรับขนาดฟอนต์ปุ่ม */
+}
+
+/* Category Pills Navigation */
+#category-nav-pills .nav-link {
+    color: #6c757d;
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+    border: 1px solid #dee2e6;
+}
+#category-nav-pills .nav-link.active {
+    color: #fff;
+    background-color: #6200EA; /* สี Primary */
+    border-color: #6200EA;
+}
+
+/* Floating Action Button (FAB) for scrolling */
+.scroll-to-cart-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1030;
+    background-color: #03DAC6; /* สี Secondary */
+    border-color: #03DAC6;
+    color: #000;
+}
+.scroll-to-cart-btn:hover {
+    background-color: #018786;
+    border-color: #018786;
+    color: #fff;
+}
+#fab-cart-count {
+    font-size: 0.7rem; /* ขนาดตัวเลขบน FAB */
+    line-height: 1;
+    padding: 0.25em 0.4em;
+}
+
+/* ให้ footer ไม่ทับปุ่ม FAB */
+body {
+    padding-bottom: 80px; /* เพิ่ม padding ด้านล่างให้ body ถ้า FAB สูง */
+}
