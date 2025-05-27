@@ -243,24 +243,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 menuContainer.appendChild(categoryHeader);
             }
 
+            // ***** แก้ไขส่วน cardHtml ตรงนี้ *****
             const cardHtml = `
                 <div class="col">
                     <div class="card h-100 menu-card-no-image shadow-sm">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <h5 class="card-title mb-1">${item.Name}</h5>
-                                <p class="card-text price ms-2 mb-1">${parseFloat(item.Price).toFixed(2)} บ.</p>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h5 class="card-title mb-0 me-2 flex-grow-1">${item.Name}</h5>
+                                <span class="card-text price fw-bold text-nowrap">${parseFloat(item.Price).toFixed(2)} บ.</span>
+                                <button class="btn btn-sm btn-outline-secondary add-to-cart-btn ms-2 flex-shrink-0">
+                                    <i class="bi bi-cart-plus"></i>
+                                </button>
                             </div>
-                            ${item.Description ? `<p class="card-text small text-muted flex-grow-1 mb-2">${item.Description}</p>` : '<div class="flex-grow-1"></div>'}
-                            <button class="btn btn-secondary w-100 add-to-cart-btn mt-auto">
-                                <i class="bi bi-cart-plus-fill btn-icon"></i>เพิ่มลงตะกร้า
-                            </button>
+                            ${item.Description ? `<p class="card-text small text-muted mb-0">${item.Description}</p>` : ''}
                         </div>
                         <input type="hidden" class="add-to-cart-itemid" value="${item.ItemID}">
                     </div>
                 </div>
             `;
-            // menuContainer.insertAdjacentHTML('beforeend', cardHtml); // ใช้แบบนี้ก็ได้
+            // ***** สิ้นสุดการแก้ไขส่วน cardHtml *****
+            
             const tempDiv = document.createElement('div'); // สร้าง element ชั่วคราว
             tempDiv.innerHTML = cardHtml.trim(); // .trim() เพื่อลบ whitespace
             const cardElement = tempDiv.firstChild;
