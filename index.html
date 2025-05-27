@@ -9,41 +9,64 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* ... (สไตล์เดิมของคุณสำหรับ .scroll-to-cart-btn, .category-header, .menu-card-no-image) ... */
-        /* Navbar custom style */
+        /* สไตล์เพิ่มเติมเฉพาะหน้า (ถ้ามี หรือย้ายไป style.css) */
         .navbar {
-            /* box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);  เดิมคือ shadow-sm */
-            border-bottom: 1px solid #dee2e6; /* เพิ่มเส้นขอบล่าง */
+            border-bottom: 1px solid #e0e0e0; /* เพิ่มเส้นขอบล่างให้ Navbar */
+        }
+        .scroll-to-cart-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1030;
+        }
+        .category-header {
+            background-color: #f0f0f0;
+            padding: 0.75rem 1.25rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0.25rem;
+            font-weight: bold;
+            color: #495057;
+        }
+        .menu-card-no-image .card-body {
+            padding-top: 1rem;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg fixed-top bg-light shadow-sm"> {/* เพิ่ม bg-light และ shadow-sm ถ้าต้องการ หรือปรับใน style.css */}
+    <nav class="navbar navbar-expand-lg fixed-top bg-light shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <a class="navbar-brand mb-0" href="#"> {/* เพิ่ม mb-0 */}
+            <a class="navbar-brand mb-0" href="#">
                 <span class="navbar-brand-text">ร้านของคุณ - โต๊ะ <span id="table-number-nav" class="fw-bold"></span></span>
             </a>
-            <div class="ms-auto"> {/* ย้าย ms-auto มาที่ div นี้ */}
-                <span class="fw-bold navbar-text"> {/* เพิ่ม class navbar-text */}
+            <div class="ms-auto">
+                <span class="fw-bold navbar-text">
                     ยอดรวม: <span id="nav-cart-total">0.00</span> บ.
                 </span>
             </div>
         </div>
     </nav>
 
-    {/* ... (Loading Spinner, User Message Container, Page Header เหมือนเดิม) ... */}
+    <div id="loading-spinner" style="display: none;"> {/* ซ่อนไว้ตอนเริ่มต้น */}
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">กำลังโหลด...</span>
+        </div>
+    </div>
+
+    <div id="user-message-container"></div>
+
     <header class="page-header py-3">
         <h1 class="h3"><i class="bi bi-card-list"></i> เลือกเมนูอาหาร</h1>
     </header>
 
     <div class="container">
-        {/* ... (Category Navigation, Menu Section, Cart & Current Order Section เหมือนเดิม) ... */}
         <ul class="nav nav-pills mb-3" id="category-nav-pills">
             {/* Category pills will be loaded here by JavaScript */}
         </ul>
 
         <section id="menu-section" class="mb-4">
             <div id="menu-items-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                {/* Menu items grouped by category will be loaded here */}
                 <p id="menu-loading-placeholder" class="col-12 text-center">กำลังโหลดรายการอาหาร...</p>
             </div>
         </section>
@@ -72,14 +95,11 @@
         </div>
     </div>
 
-
     <button id="scroll-to-cart-fab" class="btn btn-secondary btn-lg rounded-circle shadow scroll-to-cart-btn">
-        <i class="bi bi-cart3"></i> {/* เปลี่ยนไอคอนเป็นรูปรถเข็น */}
-        <span id="fab-cart-count" class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" style="font-size: 0.7rem; display: none;">0</span> {/* ซ่อน badge ไว้ก่อนถ้าไม่มีของ */}
+        <i class="bi bi-cart3"></i> {/* ไอคอนรูปรถเข็น */}
+        <span id="fab-cart-count" class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" style="font-size: 0.7rem; display: none;">0</span> {/* ซ่อน badge ถ้าไม่มีของ */}
     </button>
 
-
-    {/* ... (Footer เหมือนเดิม) ... */}
     <footer class="footer mt-5">
         <p class="mb-0">&copy; <span id="current-year"></span> ชื่อร้านของคุณ. สงวนลิขสิทธิ์.</p>
     </footer>
