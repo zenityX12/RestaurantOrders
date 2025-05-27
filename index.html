@@ -9,99 +9,79 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* เพิ่มสไตล์สำหรับปุ่มลอย */
-        .scroll-to-cart-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1030; /* ให้อยู่เหนือกว่า content อื่นๆ */
-        }
-        .category-header {
-            background-color: #f0f0f0;
-            padding: 0.75rem 1.25rem;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            border-radius: 0.25rem;
-            font-weight: bold;
-            color: #495057;
-        }
-        .menu-card-no-image .card-body { /* สไตล์สำหรับ card ที่ไม่มีรูป */
-            padding-top: 1.25rem; /* เพิ่ม padding ด้านบนเมื่อไม่มีรูป */
+        /* ... (สไตล์เดิมของคุณสำหรับ .scroll-to-cart-btn, .category-header, .menu-card-no-image) ... */
+        /* Navbar custom style */
+        .navbar {
+            /* box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);  เดิมคือ shadow-sm */
+            border-bottom: 1px solid #dee2e6; /* เพิ่มเส้นขอบล่าง */
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg fixed-top shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="#">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light shadow-sm"> {/* เพิ่ม bg-light และ shadow-sm ถ้าต้องการ หรือปรับใน style.css */}
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand mb-0" href="#"> {/* เพิ่ม mb-0 */}
                 <span class="navbar-brand-text">ร้านของคุณ - โต๊ะ <span id="table-number-nav" class="fw-bold"></span></span>
             </a>
-            <div class="ms-auto d-flex align-items-center">
-                <span class="me-3">
-                    <i class="bi bi-cart3"></i> <span id="nav-cart-count">0</span> รายการ
-                </span>
-                <span class="fw-bold">
+            <div class="ms-auto"> {/* ย้าย ms-auto มาที่ div นี้ */}
+                <span class="fw-bold navbar-text"> {/* เพิ่ม class navbar-text */}
                     ยอดรวม: <span id="nav-cart-total">0.00</span> บ.
                 </span>
             </div>
         </div>
     </nav>
 
-    <div id="loading-spinner">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">กำลังโหลด...</span>
-        </div>
-    </div>
-
-    <div id="user-message-container"></div>
-
-    <header class="page-header py-3"> <h1 class="h3"><i class="bi bi-card-list"></i> เลือกเมนูอาหาร</h1>
+    {/* ... (Loading Spinner, User Message Container, Page Header เหมือนเดิม) ... */}
+    <header class="page-header py-3">
+        <h1 class="h3"><i class="bi bi-card-list"></i> เลือกเมนูอาหาร</h1>
     </header>
 
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <ul class="nav nav-pills mb-3" id="category-nav-pills">
-                    </ul>
+        {/* ... (Category Navigation, Menu Section, Cart & Current Order Section เหมือนเดิม) ... */}
+        <ul class="nav nav-pills mb-3" id="category-nav-pills">
+            {/* Category pills will be loaded here by JavaScript */}
+        </ul>
 
-                <section id="menu-section" class="mb-4">
-                    <div id="menu-items-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-                        <p id="menu-loading-placeholder" class="col-12 text-center">กำลังโหลดรายการอาหาร...</p>
-                    </div>
-                </section>
+        <section id="menu-section" class="mb-4">
+            <div id="menu-items-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                <p id="menu-loading-placeholder" class="col-12 text-center">กำลังโหลดรายการอาหาร...</p>
             </div>
+        </section>
 
-            <div class="col-12 mt-4" id="cart-and-order-summary-section">
-                <section id="cart-section" class="summary-section mb-4">
-                    <h3 class="mb-3"><i class="bi bi-cart3"></i> ตะกร้าสินค้า (<span id="cart-item-count-summary">0</span>)</h3>
-                    <div id="cart-items-display">
-                        <p class="text-muted">ตะกร้ายังว่างอยู่</p>
-                    </div>
-                    <hr>
-                    <h4 class="d-flex justify-content-between">ยอดรวม: <span id="cart-total-summary" class="fw-bold">0.00</span> บาท</h4>
-                    <button id="submit-order-btn" class="btn btn-primary btn-lg w-100 mt-3" disabled>
-                        <i class="bi bi-check-circle-fill btn-icon"></i>ยืนยันการสั่งซื้อ
-                    </button>
-                </section>
+        <div class="col-12 mt-4" id="cart-and-order-summary-section">
+            <section id="cart-section" class="summary-section mb-4">
+                <h3 class="mb-3"><i class="bi bi-cart3"></i> ตะกร้าสินค้า (<span id="cart-item-count-summary">0</span>)</h3>
+                <div id="cart-items-display">
+                    <p class="text-muted">ตะกร้ายังว่างอยู่</p>
+                </div>
+                <hr>
+                <h4 class="d-flex justify-content-between">ยอดรวม: <span id="cart-total-summary" class="fw-bold">0.00</span> บาท</h4>
+                <button id="submit-order-btn" class="btn btn-primary btn-lg w-100 mt-3" disabled>
+                    <i class="bi bi-check-circle-fill btn-icon"></i>ยืนยันการสั่งซื้อ
+                </button>
+            </section>
 
-                <section id="current-order-section" class="summary-section">
-                    <h3 class="mb-3"><i class="bi bi-receipt"></i> รายการที่สั่งไปแล้ว (โต๊ะ <span id="current-order-table-num"></span>)</h3>
-                    <div id="current-order-items-display">
-                        <p class="text-muted">ยังไม่มีรายการที่สั่งสำหรับโต๊ะนี้</p>
-                    </div>
-                    <hr>
-                    <h4 class="d-flex justify-content-between">ยอดรวมที่สั่ง: <span id="current-order-total" class="fw-bold">0.00</span> บาท</h4>
-                </section>
-            </div>
+            <section id="current-order-section" class="summary-section">
+                <h3 class="mb-3"><i class="bi bi-receipt"></i> รายการที่สั่งไปแล้ว (โต๊ะ <span id="current-order-table-num"></span>)</h3>
+                <div id="current-order-items-display">
+                    <p class="text-muted">ยังไม่มีรายการที่สั่งสำหรับโต๊ะนี้</p>
+                </div>
+                <hr>
+                <h4 class="d-flex justify-content-between">ยอดรวมที่สั่ง: <span id="current-order-total" class="fw-bold">0.00</span> บาท</h4>
+            </section>
         </div>
     </div>
 
+
     <button id="scroll-to-cart-fab" class="btn btn-secondary btn-lg rounded-circle shadow scroll-to-cart-btn">
-        <i class="bi bi-arrow-down-circle"></i> <span id="fab-cart-count" class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" style="font-size: 0.7rem;">0</span>
+        <i class="bi bi-cart3"></i> {/* เปลี่ยนไอคอนเป็นรูปรถเข็น */}
+        <span id="fab-cart-count" class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" style="font-size: 0.7rem; display: none;">0</span> {/* ซ่อน badge ไว้ก่อนถ้าไม่มีของ */}
     </button>
 
 
-    <footer class="footer mt-5"> <p class="mb-0">&copy; <span id="current-year"></span> ชื่อร้านของคุณ. สงวนลิขสิทธิ์.</p>
+    {/* ... (Footer เหมือนเดิม) ... */}
+    <footer class="footer mt-5">
+        <p class="mb-0">&copy; <span id="current-year"></span> ชื่อร้านของคุณ. สงวนลิขสิทธิ์.</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
