@@ -1,0 +1,204 @@
+/* css/style.css */
+body {
+    font-family: 'Sarabun', sans-serif; /* ใช้ฟอนต์สารบรรณ */
+    background-color: #f8f9fa; /* สีพื้นหลังอ่อนๆ */
+    color: #333;
+    padding-top: 70px; /* สำหรับ fixed navbar */
+}
+
+/* Navbar Styling */
+.navbar-brand img {
+    max-height: 40px;
+    margin-right: 10px;
+}
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    background-color: #ffffff; /* Navbar สีขาว */
+}
+.navbar-brand-text {
+    font-weight: bold;
+    color: #5E35B1; /* สีม่วงเข้มสำหรับแบรนด์ */
+}
+
+/* Header Styling */
+.page-header {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); /* Gradient สวยๆ */
+    color: white;
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+    border-radius: 0 0 .5rem .5rem;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.page-header h1, .page-header h2 {
+    margin: 0;
+    font-weight: 300;
+}
+.page-header h1 {
+    font-size: 2.5rem;
+}
+.page-header h2 {
+    font-size: 1.5rem;
+    opacity: 0.9;
+}
+
+/* Card Styling (Menu Items, Orders) */
+.menu-card, .order-card, .kitchen-order-card, .admin-table-card {
+    transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.75rem; /* มุมมนมากขึ้น */
+    background-color: #fff;
+    overflow: hidden; /* ป้องกัน content ล้น card */
+    margin-bottom: 1.5rem;
+}
+
+.menu-card:hover, .order-card:hover, .kitchen-order-card:hover, .admin-table-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.15)!important;
+}
+
+.menu-card img {
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    object-fit: cover;
+    height: 220px; /* ปรับความสูงรูปภาพ */
+    width: 100%;
+}
+.card-title {
+    font-weight: bold;
+    color: #333;
+}
+.card-text.price {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #28a745; /* สีเขียวสำหรับราคา */
+}
+.card-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: #6200EA; /* สีม่วง Primary */
+    border-color: #6200EA;
+    transition: background-color 0.2s ease;
+}
+.btn-primary:hover {
+    background-color: #3700B3;
+    border-color: #3700B3;
+}
+.btn-secondary {
+    background-color: #03DAC6; /* สีเขียวอมฟ้า Secondary */
+    border-color: #03DAC6;
+    color: #000;
+}
+.btn-secondary:hover {
+    background-color: #018786;
+    border-color: #018786;
+    color: #fff;
+}
+.btn-danger {
+    background-color: #B00020;
+    border-color: #B00020;
+}
+.btn-danger:hover {
+    background-color: #800017;
+    border-color: #800017;
+}
+.btn-icon {
+    margin-right: 0.5rem;
+}
+
+/* Loading Spinner */
+#loading-spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 1056; /* สูงกว่า navbar */
+    display: none; /* ซ่อนไว้ตอนแรก */
+    justify-content: center;
+    align-items: center;
+}
+#loading-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: #6200EA; /* สีเดียวกับ primary button */
+}
+
+/* User Message Container */
+#user-message-container {
+    position: fixed;
+    top: 80px; /* ใต้ Navbar */
+    right: 20px;
+    z-index: 1055; /* สูงกว่า content แต่ต่ำกว่า spinner */
+    width: auto;
+    max-width: 400px;
+}
+
+/* Cart & Order Summary Styling */
+.summary-section {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,.1);
+    margin-bottom: 2rem;
+}
+.summary-section h3, .summary-section h4 {
+    color: #5E35B1;
+}
+
+/* Kitchen Order Card Status Border */
+.kitchen-order-card.status-pending { border-left: 5px solid #ffc107; /* สีเหลือง */ }
+.kitchen-order-card.status-confirmed { border-left: 5px solid #17a2b8; /* สีฟ้า */ }
+.kitchen-order-card.status-preparing { border-left: 5px solid #fd7e14; /* สีส้ม */ }
+.kitchen-order-card.status-served { border-left: 5px solid #28a745; /* สีเขียว */ }
+
+.kitchen-order-card .card-header {
+    font-weight: bold;
+}
+
+/* Admin Accordion */
+.accordion-button:not(.collapsed) {
+    color: #fff;
+    background-color: #6a11cb; /* สีเดียวกับ header */
+}
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0,0,0,.125);
+}
+
+/* Footer */
+.footer {
+    background-color: #343a40;
+    color: white;
+    padding: 1.5rem 0;
+    text-align: center;
+    margin-top: 3rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding-top: 60px; /* ปรับ padding สำหรับ navbar ที่เล็กกว่า */
+    }
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    .page-header h2 {
+        font-size: 1.2rem;
+    }
+    .menu-card img {
+        height: 180px;
+    }
+    #user-message-container {
+        top: 70px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        max-width: none;
+    }
+}
