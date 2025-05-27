@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สั่งอาหาร - โต๊ะ <span id="table-number-title"></span></title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="assets/images/logo_placeholder.png" alt="โลโก้ร้าน" onerror="this.style.display='none'"> <span class="navbar-brand-text">ชื่อร้านของคุณ</span>
+            </a>
+            <div class="ms-auto">
+                 <h5 class="mb-0">โต๊ะ: <span id="table-number-nav" class="badge bg-primary"></span></h5>
+            </div>
+        </div>
+    </nav>
+
+    <div id="loading-spinner">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">กำลังโหลด...</span>
+        </div>
+    </div>
+
+    <div id="user-message-container"></div>
+
+    <header class="page-header">
+        <h1><i class="bi bi-cup-straw"></i> ยินดีต้อนรับ</h1>
+        <h2>เลือกเมนูที่ต้องการได้เลยครับ/ค่ะ</h2>
+    </header>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <section id="menu-section" class="mb-4">
+                    <h3 class="mb-3"><i class="bi bi-card-list"></i> รายการอาหาร</h3>
+                    <div id="menu-items-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-4">
+                        <p id="menu-loading-placeholder">กำลังโหลดรายการอาหาร...</p>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-lg-4">
+                <section id="cart-section" class="summary-section mb-4">
+                    <h3 class="mb-3"><i class="bi bi-cart3"></i> ตะกร้าสินค้า (<span id="cart-item-count">0</span>)</h3>
+                    <div id="cart-items-display">
+                        <p class="text-muted">ตะกร้ายังว่างอยู่</p>
+                    </div>
+                    <hr>
+                    <h4 class="d-flex justify-content-between">ยอดรวม: <span id="cart-total" class="fw-bold">0.00</span> บาท</h4>
+                    <button id="submit-order-btn" class="btn btn-primary btn-lg w-100 mt-3" disabled>
+                        <i class="bi bi-check-circle-fill btn-icon"></i>ยืนยันการสั่งซื้อ
+                    </button>
+                </section>
+
+                <section id="current-order-section" class="summary-section">
+                    <h3 class="mb-3"><i class="bi bi-receipt"></i> รายการที่สั่งไปแล้ว (โต๊ะ <span id="current-order-table-num"></span>)</h3>
+                    <div id="current-order-items-display">
+                        <p class="text-muted">ยังไม่มีรายการที่สั่งสำหรับโต๊ะนี้</p>
+                    </div>
+                    <hr>
+                    <h4 class="d-flex justify-content-between">ยอดรวมที่สั่ง: <span id="current-order-total" class="fw-bold">0.00</span> บาท</h4>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p class="mb-0">&copy; <span id="current-year"></span> ชื่อร้านของคุณ. สงวนลิขสิทธิ์.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/shared.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
