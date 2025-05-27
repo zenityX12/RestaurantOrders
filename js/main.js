@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitOrderBtn = document.getElementById('submit-order-btn');
 
     // DOM Elements for Navbar Cart Info
-    const navCartCountEl = document.getElementById('nav-cart-count');
+    // const navCartCountEl = document.getElementById('nav-cart-count'); // ไม่ได้ใช้แล้ว
     const navCartTotalEl = document.getElementById('nav-cart-total');
-    const fabCartCountEl = document.getElementById('fab-cart-count'); // FAB cart count
+    const fabCartCountEl = document.getElementById('fab-cart-count');
 
     // DOM Elements for Current Order
     const currentOrderItemsDisplay = document.getElementById('current-order-items-display');
@@ -31,12 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const scrollToCartFab = document.getElementById('scroll-to-cart-fab');
     const cartAndOrderSummarySection = document.getElementById('cart-and-order-summary-section');
 
-
     let menuData = [];
     let cart = [];
     const CART_STORAGE_KEY_PREFIX = 'restaurant_cart_table_';
     let cartStorageKey = '';
-    let categories = []; // To store unique categories
+    let categoriesInOrder = []; // เก็บหมวดหมู่ตามลำดับที่ต้องการ
 
     if (!tableNumber) {
         showUserMessage("ไม่พบหมายเลขโต๊ะ! กรุณาสแกน QR Code ที่โต๊ะของท่านอีกครั้ง", "danger");
@@ -49,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(currentOrderTableNumEl) currentOrderTableNumEl.textContent = tableNumber;
     cartStorageKey = `${CART_STORAGE_KEY_PREFIX}${tableNumber}`;
 
-    // --- Cart Logic (เหมือนเดิม เพิ่มเติมคืออัปเดต Navbar และ FAB) ---
+    // --- Cart Logic ---
     function loadCartFromStorage() {
         const storedCart = localStorage.getItem(cartStorageKey);
         if (storedCart) {
@@ -111,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
             cartItemsDisplay.innerHTML = '<p class="text-muted fst-italic">ตะกร้ายังว่างอยู่</p>';
             submitOrderBtn.disabled = true;
         } else {
-            // ... (โค้ดสร้างรายการในตะกร้าเหมือนเดิม) ...
             const ul = document.createElement('ul');
             ul.className = 'list-group list-group-flush';
             cart.forEach(item => {
@@ -141,38 +139,42 @@ document.addEventListener('DOMContentLoaded', () => {
             ul.querySelectorAll('.increase-qty-btn').forEach(btn => btn.addEventListener('click', e => updateQuantity(e.currentTarget.dataset.itemid, 1)));
             ul.querySelectorAll('.remove-item-btn').forEach(btn => btn.addEventListener('click', e => removeFromCart(e.currentTarget.dataset.itemid)));
         }
-
         cartTotalSummaryEl.textContent = total.toFixed(2);
         cartItemCountSummaryEl.textContent = itemCount;
 
-        // Update Navbar cart info & FAB
-        // *** ไม่ต้องอัปเดต navCartCountEl แล้ว ***
-        // if(navCartCountEl) navCartCountEl.textContent = itemCount;
         if(navCartTotalEl) navCartTotalEl.textContent = total.toFixed(2);
         if(fabCartCountEl) {
             fabCartCountEl.textContent = itemCount;
-            // แสดง badge บน FAB ต่อเมื่อมีสินค้าในตะกร้า
-            fabCartCountEl.style.display = itemCount > 0 ? 'inline-flex' : 'none'; // ใช้ inline-flex เพื่อให้ badge แสดงผลถูกตำแหน่ง
+            fabCartCountEl.style.display = itemCount > 0 ? 'inline-flex' : 'none';
         }
     }
 
-    // --- Menu Logic (ปรับปรุงให้แสดงตามหมวดหมู่ และไม่มีรูปภาพ) ---
+    // --- Menu Logic ---
     async function loadMenu() {
         if(menuLoadingPlaceholder) menuLoadingPlaceholder.style.display = 'block';
         menuContainer.innerHTML = '';
         if(categoryNavPillsContainer) categoryNavPillsContainer.innerHTML = '';
-
 
         const menu = await fetchData('getMenu');
         if(menuLoadingPlaceholder) menuLoadingPlaceholder.style.display = 'none';
 
         if (menu && Array.isArray(menu) && menu.length > 0) {
             menuData = menu;
-            // ดึงหมวดหมู่ที่ไม่ซ้ำกัน
-            const uniqueCategories = [...new Set(menuData.map(item => item.Category || "เมนูทั่วไป"))];
-            categories = uniqueCategories.sort(); // เรียงตามตัวอักษร
+
+            // ดึงหมวดหมู่ตามลำดับที่ปรากฏใน menuData (ซึ่งควรเรียงตาม Google Sheet)
+            const categoryOrder = [];
+            const seenCategories = new Set();
+            menuData.forEach(item => {
+                const category = item.Category || "เมนูทั่วไป";
+                if (!seenCategories.has(category)) {
+                    categoryOrder.push(category);
+                    seenCategories.add(category);
+                }
+            });
+            categoriesInOrder = categoryOrder;
+
             renderCategoryPills();
-            renderMenu(); // Render all initially or first category
+            renderMenu("all"); // แสดงเมนูทั้งหมด (ซึ่งจะถูกจัดกลุ่มตาม categoriesInOrder)
         } else if (menu && menu.error) {
             showUserMessage(`ไม่สามารถโหลดเมนูได้: ${menu.error}`, "danger");
             menuContainer.innerHTML = '<p class="text-danger text-center col-12">ขออภัย, ไม่สามารถโหลดรายการอาหารได้</p>';
@@ -183,16 +185,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCategoryPills() {
-        if (!categoryNavPillsContainer || categories.length === 0) return;
+        if (!categoryNavPillsContainer || categoriesInOrder.length === 0) return;
 
-        // Add "All" pill
         const allPillItem = document.createElement('li');
         allPillItem.className = 'nav-item';
         allPillItem.innerHTML = `<button class="nav-link active category-pill-btn" data-category="all">ทั้งหมด</button>`;
         categoryNavPillsContainer.appendChild(allPillItem);
 
-
-        categories.forEach(category => {
+        categoriesInOrder.forEach(category => {
             const pillItem = document.createElement('li');
             pillItem.className = 'nav-item';
             pillItem.innerHTML = `<button class="nav-link category-pill-btn" data-category="${category}">${category}</button>`;
@@ -208,78 +208,76 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     function renderMenu(selectedCategory = "all") {
-        menuContainer.innerHTML = ''; // Clear placeholder or old items
+        menuContainer.innerHTML = '';
 
-        const itemsToRender = selectedCategory === "all"
-            ? menuData
-            : menuData.filter(item => (item.Category || "เมนูทั่วไป") === selectedCategory);
+        if (selectedCategory === "all") {
+            // ถ้าเลือก "ทั้งหมด" ให้แสดงตามหมวดหมู่ที่กำหนดลำดับไว้ (categoriesInOrder)
+            categoriesInOrder.forEach(categoryName => {
+                // ดึงรายการอาหารสำหรับหมวดหมู่นี้ (รายการจะเรียงตามลำดับใน menuData อยู่แล้ว)
+                const categoryItems = menuData.filter(item => (item.Category || "เมนูทั่วไป") === categoryName);
+                if (categoryItems.length > 0) {
+                    const categoryHeader = document.createElement('h4');
+                    categoryHeader.className = 'category-header col-12';
+                    categoryHeader.textContent = categoryName;
+                    categoryHeader.id = `category-${categoryName.replace(/\s+/g, '-')}`; // สำหรับการนำทาง (ถ้ามี)
+                    menuContainer.appendChild(categoryHeader);
 
-        if (itemsToRender.length === 0 && selectedCategory !== "all") {
-             menuContainer.innerHTML = `<p class="text-muted text-center col-12">ไม่มีรายการอาหารในหมวดหมู่ "${selectedCategory}"</p>`;
-            return;
-        }
-         if (itemsToRender.length === 0 && selectedCategory === "all") {
-             menuContainer.innerHTML = `<p class="text-muted text-center col-12">ขออภัย, ไม่มีรายการอาหารในขณะนี้</p>`;
-            return;
-        }
-
-
-        let currentCategory = "";
-        itemsToRender.sort((a, b) => { // Sort by category first, then by name
-            if ((a.Category || "เมนูทั่วไป") < (b.Category || "เมนูทั่วไป")) return -1;
-            if ((a.Category || "เมนูทั่วไป") > (b.Category || "เมนูทั่วไป")) return 1;
-            if (a.Name < b.Name) return -1;
-            if (a.Name > b.Name) return 1;
-            return 0;
-        }).forEach(item => {
-            const itemCategory = item.Category || "เมนูทั่วไป";
-
-            // แสดง Header ของหมวดหมู่เมื่อมีการเปลี่ยนหมวดหมู่ (ถ้าไม่ได้ใช้ Pills filter หรือใช้ร่วมกัน)
-            if (selectedCategory === "all" && itemCategory !== currentCategory) {
-                currentCategory = itemCategory;
-                const categoryHeader = document.createElement('h4');
-                categoryHeader.className = 'category-header col-12'; // ใช้ class style ที่เพิ่มใน HTML
-                categoryHeader.textContent = currentCategory;
-                categoryHeader.id = `category-${currentCategory.replace(/\s+/g, '-')}`; // ID สำหรับการนำทาง
-                menuContainer.appendChild(categoryHeader);
+                    categoryItems.forEach(item => {
+                        renderSingleMenuItem(item);
+                    });
+                }
+            });
+            // ตรวจสอบว่าหลังจากวนลูปหมวดหมู่แล้ว มีการ render item จริงๆ หรือไม่
+            if (menuContainer.children.length === 0 && menuData.length > 0) {
+                 // อาจจะเกิดกรณีที่ categoriesInOrder มี แต่ไม่มี item ที่ match เลย (ไม่ควรเกิดถ้า logic ถูก)
+                 menuContainer.innerHTML = '<p class="text-muted text-center col-12">ไม่พบรายการอาหารสำหรับหมวดหมู่ที่ระบุ</p>';
+            } else if (menuData.length === 0) {
+                 menuContainer.innerHTML = '<p class="text-muted text-center col-12">ขออภัย, ไม่มีรายการอาหารในขณะนี้</p>';
             }
 
-            // ***** แก้ไขส่วน cardHtml ตรงนี้ *****
-            const cardHtml = `
-                <div class="col">
-                    <div class="card h-100 menu-card-no-image shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <h5 class="card-title mb-0 me-2 flex-grow-1">${item.Name}</h5>
-                                <span class="card-text price fw-bold text-nowrap">${parseFloat(item.Price).toFixed(2)} บ.</span>
-                                <button class="btn btn-sm btn-outline-secondary add-to-cart-btn ms-2 flex-shrink-0">
-                                    <i class="bi bi-cart-plus"></i>
-                                </button>
-                            </div>
-                            ${item.Description ? `<p class="card-text small text-muted mb-0">${item.Description}</p>` : ''}
-                        </div>
-                        <input type="hidden" class="add-to-cart-itemid" value="${item.ItemID}">
-                    </div>
-                </div>
-            `;
-            // ***** สิ้นสุดการแก้ไขส่วน cardHtml *****
-            
-            const tempDiv = document.createElement('div'); // สร้าง element ชั่วคราว
-            tempDiv.innerHTML = cardHtml.trim(); // .trim() เพื่อลบ whitespace
-            const cardElement = tempDiv.firstChild;
-            // ผูก event listener กับปุ่มใน card ที่เพิ่งสร้าง
-            cardElement.querySelector('.add-to-cart-btn').addEventListener('click', (e) => {
-                const itemId = e.currentTarget.closest('.card').querySelector('.add-to-cart-itemid').value;
-                addToCart(itemId);
-            });
-            menuContainer.appendChild(cardElement);
-        });
+        } else {
+            // ถ้าเลือกหมวดหมู่อื่นๆ ก็แสดงเฉพาะรายการในหมวดนั้น
+            const itemsToRender = menuData.filter(item => (item.Category || "เมนูทั่วไป") === selectedCategory);
+            if (itemsToRender.length === 0) {
+                menuContainer.innerHTML = `<p class="text-muted text-center col-12">ไม่มีรายการอาหารในหมวดหมู่ "${selectedCategory}"</p>`;
+            } else {
+                itemsToRender.forEach(item => {
+                    renderSingleMenuItem(item);
+                });
+            }
+        }
     }
 
+    function renderSingleMenuItem(item) {
+        const cardHtml = `
+            <div class="col">
+                <div class="card h-100 menu-card-no-image shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h5 class="card-title mb-0 me-2 flex-grow-1">${item.Name}</h5>
+                            <span class="card-text price fw-bold text-nowrap">${parseFloat(item.Price).toFixed(2)} บ.</span>
+                            <button class="btn btn-sm btn-outline-secondary add-to-cart-btn ms-2 flex-shrink-0">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
+                        ${item.Description ? `<p class="card-text small text-muted mb-0">${item.Description}</p>` : ''}
+                    </div>
+                    <input type="hidden" class="add-to-cart-itemid" value="${item.ItemID}">
+                </div>
+            </div>
+        `;
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = cardHtml.trim();
+        const cardElement = tempDiv.firstChild;
+        cardElement.querySelector('.add-to-cart-btn').addEventListener('click', (e) => {
+            const itemId = e.currentTarget.closest('.card').querySelector('.add-to-cart-itemid').value;
+            addToCart(itemId);
+        });
+        menuContainer.appendChild(cardElement);
+    }
 
-    // --- Order Submission Logic (เหมือนเดิม) ---
+    // --- Order Submission Logic ---
     submitOrderBtn.addEventListener('click', async () => {
         if (cart.length === 0) {
             showUserMessage("กรุณาเลือกรายการอาหารก่อนทำการสั่งซื้อ", "warning");
@@ -309,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Current Order Display Logic (เหมือนเดิม) ---
+    // --- Current Order Display Logic ---
     async function loadCurrentTableOrders() {
         const orders = await fetchData('getOrdersByTable', { table: tableNumber });
         currentOrderItemsDisplay.innerHTML = '';
@@ -347,8 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Load and Polling ---
     loadMenu();
-    loadCartFromStorage(); // ต้องเรียกหลังจาก menuData โหลดเสร็จถ้า cart item name/price มาจาก menuData
-                          // หรือ เก็บ name/price ใน cart object ตอน addToCart เลย (ซึ่งทำอยู่แล้ว)
+    loadCartFromStorage();
     loadCurrentTableOrders();
     setInterval(loadCurrentTableOrders, 30000); // 30 seconds
 });
