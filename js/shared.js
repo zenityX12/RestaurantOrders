@@ -1,5 +1,4 @@
 // js/shared.js
-// ฟังก์ชันที่ใช้ร่วมกันในหน้าต่างๆ เช่น การเรียก API, แสดงข้อความแจ้งเตือน
 
 /**
  * ฟังก์ชันสำหรับเรียก Google Apps Script Web App
@@ -7,14 +6,22 @@
  * @param {object} params - Parameters ที่จะส่งไปกับ GET request (ถ้ามี)
  * @param {string} method - HTTP method (GET หรือ POST)
  * @param {object} body - ข้อมูลที่จะส่งไปกับ POST request (ถ้ามี)
+ * @param {boolean} isBackgroundFetch - กำหนดว่าเป็น background fetch หรือไม่ (เพื่อควบคุม spinner)
  * @returns {Promise<object|null>} - ข้อมูล JSON ที่ได้จาก API หรือ null ถ้าเกิดข้อผิดพลาด
  */
-async function fetchData(action, params = {}, method = 'GET', body = null) {
+async function fetchData(action, params = {}, method = 'GET', body = null, isBackgroundFetch = false) {
     const loadingEl = document.getElementById('loading-spinner');
-    if (loadingEl) loadingEl.style.display = 'flex'; // แสดง loading spinner
 
-    let url = GAS_WEB_APP_URL; // GAS_WEB_APP_URL มาจาก js/config.js
-    if (action) { // ถ้ามี action ให้เพิ่มเข้าไปใน URL (สำหรับ GET ที่มี action parameter)
+    // แสดง spinner แบบเต็มหน้าจอต่อเมื่อไม่ใช่ background fetch
+    if (loadingEl && !isBackgroundFetch) {
+        loadingEl.style.display = 'flex';
+    }
+    // ถ้าเป็น background fetch อาจจะมี spinner เล็กๆ หรือ icon แสดงสถานะ loading ที่ Navbar แทน (ถ้าต้องการ)
+    // เช่น: if (isBackgroundFetch) { document.getElementById('nav-sync-icon').style.display = 'inline-block'; }
+
+
+    let url = GAS_WEB_APP_URL;
+    if (action) {
         url += `?action=${action}`;
     }
 
@@ -27,46 +34,62 @@ async function fetchData(action, params = {}, method = 'GET', body = null) {
             }
         });
     }
-     // กรณี POST และมี action ใน body (ตามที่ GAS doPost คาดหวัง)
+
     if (method === 'POST' && body && !body.action && action) {
         body.action = action;
     }
 
-
     try {
         const options = {
             method: method,
-            redirect: 'follow', // สำคัญสำหรับ GAS web apps
+            redirect: 'follow',
             headers: {}
         };
 
         if (method === 'POST' && body) {
-            // Google Apps Script doPost จะรับข้อมูลผ่าน e.postData.contents
-            // เราต้องส่งข้อมูลเป็น JSON string
             options.body = JSON.stringify(body);
-            // GAS มักจะจัดการ Content-Type 'text/plain' ได้ดีสำหรับ JSON string
             options.headers['Content-Type'] = 'text/plain;charset=utf-8';
         }
 
-        console.log(`Fetching URL: ${url}`, options); // Log URL และ options สำหรับ debug
+        // console.log(`Fetching URL: ${url}`, options); // สามารถเปิด comment นี้เพื่อ debug
 
         const response = await fetch(url, options);
 
         if (!response.ok) {
             const errorText = await response.text();
             console.error(`HTTP error! status: ${response.status}, message: ${errorText}, url: ${url}`);
-            throw new Error(`เกิดข้อผิดพลาดจากเซิร์ฟเวอร์: ${response.status}. ${errorText}`);
+            // สำหรับ background fetch อาจจะไม่ต้องแสดง error เต็มหน้าจอทุกครั้ง
+            if (!isBackgroundFetch) {
+                throw new Error(`เกิดข้อผิดพลาดจากเซิร์ฟเวอร์: ${response.status}. ${errorText}`);
+            } else {
+                // อาจจะ log error หรือแสดง icon เล็กๆ แทน
+                console.warn(`Background fetch failed: ${action}`, errorText);
+                return null; // หรือ return โครงสร้าง error ที่เหมาะสม
+            }
         }
 
         const result = await response.json();
-        console.log("Data fetched successfully:", result); // Log ผลลัพธ์
-        if (loadingEl) loadingEl.style.display = 'none'; // ซ่อน loading spinner
+        // console.log("Data fetched successfully:", result); // สามารถเปิด comment นี้เพื่อ debug
+
+        // ซ่อน spinner (ถ้าเคยแสดง) และ icon อื่นๆ (ถ้ามี)
+        if (loadingEl && !isBackgroundFetch) {
+            loadingEl.style.display = 'none';
+        }
+        // if (isBackgroundFetch) { document.getElementById('nav-sync-icon').style.display = 'none'; }
+
         return result;
 
     } catch (error) {
         console.error("Error fetching data:", error);
-        if (loadingEl) loadingEl.style.display = 'none'; // ซ่อน loading spinner
-        showUserMessage(error.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง", "danger");
+        if (loadingEl && !isBackgroundFetch) {
+            loadingEl.style.display = 'none';
+        }
+        // if (isBackgroundFetch) { document.getElementById('nav-sync-icon').style.display = 'none'; }
+
+        // แสดง error message เฉพาะเมื่อไม่ใช่ background fetch หรือเป็น error ที่สำคัญจริงๆ
+        if (!isBackgroundFetch) {
+            showUserMessage(error.message || "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง", "danger");
+        }
         return null;
     }
 }
