@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แอดมิน - จัดการออเดอร์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="assets/images/logo_placeholder.png" alt="โลโก้ร้าน" onerror="this.style.display='none'">
+                <span class="navbar-brand-text">ระบบจัดการร้านอาหาร (แอดมิน)</span>
+            </a>
+        </div>
+    </nav>
+
+    <div id="loading-spinner">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">กำลังโหลด...</span>
+        </div>
+    </div>
+
+    <div id="user-message-container"></div>
+
+    <header class="page-header">
+        <h1><i class="bi bi-person-gear"></i> หน้าจอแอดมิน</h1>
+        <h2>ตรวจสอบและจัดการออเดอร์</h2>
+    </header>
+
+    <div class="container">
+        <div class="d-flex justify-content-end mb-3">
+            <button id="refresh-admin-orders-btn" class="btn btn-info">
+                <i class="bi bi-arrow-clockwise btn-icon"></i>รีเฟรชข้อมูล
+            </button>
+        </div>
+
+        <div id="admin-orders-accordion" class="accordion">
+            <p id="admin-loading-placeholder" class="text-center text-muted">กำลังโหลดข้อมูลออเดอร์...</p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p class="mb-0">&copy; <span id="current-year-admin"></span> ชื่อร้านของคุณ. สงวนลิขสิทธิ์.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/shared.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        document.getElementById('current-year-admin').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
