@@ -1,21 +1,22 @@
 // js/kitchen-my.js
 
-function initializeKitchenPageContent() {
+// ฟังก์ชันนี้จะถูกเรียกจาก kitchen-my.html หลังจาก js/lang/my.js โหลดเสร็จ
+// หรืออาจจะถูกเรียกจาก DOMContentLoaded ใน kitchen-my.html เอง โดยมีการเช็ค window.KITCHEN_LANG_MY
+function initializeKitchenPage() {
     const kitchenOrdersContainer = document.getElementById('kitchen-orders-container');
     const kitchenLoadingPlaceholder = document.getElementById('kitchen-loading-placeholder');
     const refreshBtn = document.getElementById('refresh-kitchen-orders-btn');
 
     // --- Language and Translation Setup ---
-    // KITCHEN_LANG_MY ควรจะถูกโหลดมาจากไฟล์ js/lang/my.js และผูกกับ window object แล้ว
-    const LANG_DATA = window.KITCHEN_LANG_MY || {}; 
+    const LANG_DATA = window.KITCHEN_LANG_MY || {};
     if (Object.keys(LANG_DATA).length === 0) {
-        console.error("KITCHEN_LANG_MY is not loaded or empty. Burmese translations will not be available.");
-        // อาจจะแสดงข้อความ Error บน UI หรือใช้ภาษาไทย/อังกฤษเป็น Fallback หลัก
+        console.error("KITCHEN_LANG_MY is not loaded or empty. Burmese translations might not be available.");
+        // แสดง Alert ให้ผู้ใช้ทราบว่าโหลดภาษาพม่าไม่สำเร็จ
+        showUserMessage("မင်္ဂလာပါ! ဘာသာပြန်ဖိုင်ကိုဖွင့်ရာတွင် ပြဿနာတစ်ခုရှိနေပါသည်။", "warning");
     }
 
-
-    // ฟังก์ชันสำหรับดึงคำแปล
     function _t(key, fallbackText = "") {
+        // ... (ฟังก์ชัน _t() เหมือนเดิม) ...
         if (typeof LANG_DATA[key] === 'string' && arguments.length > 1) {
             let translatedText = LANG_DATA[key];
             for (let i = 1; i < arguments.length; i++) {
@@ -26,32 +27,49 @@ function initializeKitchenPageContent() {
         return LANG_DATA[key] || fallbackText || key;
     }
 
-    // --- Update Static UI Text that might not have been set by kitchen-my.html's inline script ---
-    // (Inline script ใน kitchen-my.html จะพยายามตั้งค่าบางอย่างไปแล้ว)
-    if (kitchenLoadingPlaceholder) kitchenLoadingPlaceholder.textContent = _t('actionSpinnerLoading', 'ဖွင့်နေသည်...');
+    // --- Update Static UI Text on initialization ---
+    document.title = _t('pageTitle', 'မီးဖိုချောင် - အော်ဒါစာရင်း');
+    const kitchenNavTitleEl = document.getElementById('kitchen-nav-title');
+    if (kitchenNavTitleEl) kitchenNavTitleEl.textContent = _t('navTitle', 'စားသောက်ဆိုင် စီမံခန့်ခွဲမှု (မီးဖိုချောင်)');
 
+    const kitchenOrdersHeaderEl = document.getElementById('kitchen-orders-header');
+    if (kitchenOrdersHeaderEl) kitchenOrdersHeaderEl.textContent = _t('ordersToPrepareHeader', 'ပြင်ဆင်ရန် အစားအစာများ');
+
+    const kitchenRefreshBtnTextEl = document.getElementById('kitchen-refresh-button-text');
+     if (kitchenRefreshBtnTextEl) {
+        const parentButton = kitchenRefreshBtnTextEl.parentElement;
+        // Clear existing text nodes except the icon
+        Array.from(parentButton.childNodes).forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
+                node.remove();
+            }
+        });
+        const textNode = document.createTextNode(" " + _t('refreshButton', 'စာရင်းပြန်စစ်မည်')); // Add space after icon
+        parentButton.appendChild(textNode);
+    } else if (refreshBtn) {
+        refreshBtn.innerHTML = `<i class="bi bi-arrow-clockwise btn-icon"></i>${_t('refreshButton', 'စာရင်းပြန်စစ်မည်')}`;
+    }
+
+
+    if (kitchenLoadingPlaceholder) kitchenLoadingPlaceholder.textContent = _t('actionSpinnerLoading', 'ဖွင့်နေသည်...');
 
     // --- Timer and Color Logic ---
     let elapsedTimeIntervalId = null;
 
     function updateElapsedTimesAndButtonColors() {
+        // ... (โค้ด updateElapsedTimesAndButtonColors เหมือนเดิม) ...
         document.querySelectorAll('.kitchen-action-btn:not(.item-served-button)').forEach(button => {
             const orderTimestampStr = button.dataset.timestampForItem;
             if (orderTimestampStr) {
                 const startTime = new Date(orderTimestampStr).getTime();
                 const now = new Date().getTime();
                 const diffSeconds = Math.max(0, Math.floor((now - startTime) / 1000));
-
-                // แปลส่วน "วิ" ด้วย
                 button.innerHTML = `${_t('statusWaitingText', 'စောင့်ပါ')} ${diffSeconds} ${_t('elapsedTimeSecondsUnit', 'စက္ကန့်')} <i class="bi bi-hourglass-split"></i>`;
-
-
-                const maxWaitSeconds = 900; // 15 นาที
+                const maxWaitSeconds = 900;
                 const progress = Math.min(diffSeconds / maxWaitSeconds, 1);
                 const hue = 60 - (60 * progress);
                 const lightness = 85 - (30 * progress);
                 const saturation = 100;
-
                 button.style.backgroundColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
                 button.style.borderColor = `hsl(${hue}, ${saturation}%, ${Math.max(40, lightness - 10)}%)`;
                 button.style.color = lightness > 65 ? '#333' : '#fff';
@@ -61,6 +79,7 @@ function initializeKitchenPageContent() {
 
     // --- Core Order Loading and Rendering Logic ---
     async function loadKitchenOrders(isInitialLoad = true) {
+        // ... (โค้ด loadKitchenOrders เหมือนเดิม โดยใช้ _t() สำหรับข้อความ) ...
         if(kitchenLoadingPlaceholder && isInitialLoad) {
             kitchenLoadingPlaceholder.textContent = _t('actionSpinnerLoading', 'ဖွင့်နေသည်...');
             kitchenLoadingPlaceholder.style.display = 'block';
@@ -195,7 +214,7 @@ function initializeKitchenPageContent() {
             }, 700);
 
         } else {
-            showUserMessage(`${_t('errorUpdateStatus', 'เกิดข้อผิดพลาดในการอัปเดตสถานะ')}: ${result ? result.message : _t('errorConnection', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้')}`, "danger");
+            showUserMessage(`${_t('errorUpdateStatus', 'เกิดข้อผิดพลาดในการอัปเดตสถานะ')}: ${result ? (result.message || result.error || '') : _t('errorConnection', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้')}`, "danger");
             button.disabled = false;
             button.innerHTML = originalButtonText;
             button.classList.remove('item-served-button');
@@ -207,44 +226,21 @@ function initializeKitchenPageContent() {
         refreshBtn.addEventListener('click', () => loadKitchenOrders(true));
     }
 
-    // --- Initialize Page ---
-    // ฟังก์ชันนี้จะถูกเรียกใช้จาก kitchen-my.html หลังจาก script โหลดไฟล์ภาษาเสร็จ
-    // หรือถ้าจะให้ปลอดภัย อาจจะเช็ค window.KITCHEN_LANG_MY ก่อนเรียก
-    function startPage() {
-        if (elapsedTimeIntervalId) clearInterval(elapsedTimeIntervalId);
-        elapsedTimeIntervalId = setInterval(updateElapsedTimesAndButtonColors, 1000);
+    // --- Start Page Execution ---
+    if (elapsedTimeIntervalId) clearInterval(elapsedTimeIntervalId);
+    elapsedTimeIntervalId = setInterval(updateElapsedTimesAndButtonColors, 1000);
 
-        loadKitchenOrders(true);
+    loadKitchenOrders(true);
 
-        if (window.kitchenOrderPollingIntervalId) {
-            clearInterval(window.kitchenOrderPollingIntervalId);
-        }
-        window.kitchenOrderPollingIntervalId = setInterval(() => {
-            loadKitchenOrders(false);
-        }, 20000);
+    if (window.kitchenOrderPollingIntervalId) {
+        clearInterval(window.kitchenOrderPollingIntervalId);
     }
+    window.kitchenOrderPollingIntervalId = setInterval(() => {
+        loadKitchenOrders(false);
+    }, 20000);
+}
 
-    // รอให้ไฟล์ lang/my.js โหลดเสร็จและ window.KITCHEN_LANG_MY พร้อมใช้งาน
-    // โดยการให้ kitchen.html เรียก initializeKitchenPageContent จาก onload ของ script tag ที่โหลด lang/my.js
-    // หรือถ้าทำแบบง่ายคือรอสักพักแล้วเริ่ม (ไม่แนะนำ)
-    // วิธีที่ดีคือให้ HTML เรียกฟังก์ชันนี้หลังจาก script ภาษาโหลดแล้ว
-
-    // เพื่อให้แน่ใจว่า LANG_DATA พร้อมใช้งานก่อนเริ่ม
-    if (window.KITCHEN_LANG_MY) {
-        startPage();
-    } else {
-        // ถ้า KITCHEN_LANG_MY ยังไม่โหลด (อาจจะเพราะ script ใน HTML เรียกเร็วไป)
-        // ให้รอ event 'load' ของ script ภาษา (ซึ่งควรจะตั้งใน HTML)
-        // หรือตั้ง timeout สั้นๆ เพื่อรอ (เป็นวิธีที่ไม่ค่อยดีนัก)
-        console.warn("KITCHEN_LANG_MY not ready, retrying in 100ms to startPage...");
-        setTimeout(() => {
-            if (window.KITCHEN_LANG_MY) {
-                startPage();
-            } else {
-                console.error("KITCHEN_LANG_MY still not available. Page might not translate correctly.");
-                // อาจจะแสดง error หรือใช้ fallback language ที่แข็งแกร่งกว่านี้
-                startPage(); // ลองเริ่มด้วย fallback (LANG_DATA จะเป็น {} หรือ KITCHEN_LANG_TH)
-            }
-        }, 100);
-    }
-});
+// การเรียก initializeKitchenPage จะถูกควบคุมจาก script ใน kitchen-my.html
+// หลังจากที่ js/lang/my.js โหลดเสร็จ
+// ดังนั้น ไม่ต้องเรียก initializeKitchenPage() โดยตรงจากที่นี่อีก
+// document.addEventListener('DOMContentLoaded', initializeKitchenPage); // เอาออก หรือปรับให้เช็คการโหลดไฟล์ภาษา
