@@ -4,7 +4,7 @@ body {
     background-color: #f8f9fa;
     color: #333;
     padding-top: 70px; /* สำหรับ fixed navbar */
-    padding-bottom: 90px;
+    padding-bottom: 90px; /* เพิ่ม padding ด้านล่างให้ body ถ้า FAB สูง */
 }
 
 /* Navbar Styling */
@@ -26,6 +26,7 @@ body {
     padding-top: .25rem;
     padding-bottom: .25rem;
 }
+
 
 /* Page Header Styling (หน้าลูกค้า) */
 .page-header {
@@ -120,6 +121,7 @@ body {
     min-width: 0;
 }
 
+
 /* Button Styling */
 .btn-primary {
     background-color: #6200EA;
@@ -191,6 +193,7 @@ body {
     }
 }
 
+
 /* Cart & Order Summary Styling (หน้าลูกค้า) */
 .summary-section {
     background-color: #ffffff;
@@ -206,20 +209,28 @@ body {
 .summary-section h4 {
     font-size: 1rem;
 }
-.cart-item-note {
+.cart-item-note { /* สไตล์โน้ตในตะกร้า (หน้าลูกค้า) */
     font-size: 0.8rem;
-    color: #dc3545;
+    color: #6c757d; /* สีเทาสำหรับโน้ตในตะกร้า */
     font-style: italic;
     margin-top: 0.1rem;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
 }
-#current-order-items-display .cart-item-note {
-    color: #5E35B1;
+#current-order-items-display .cart-item-note { /* สไตล์โน้ตในรายการที่สั่งไปแล้ว (หน้าลูกค้า) */
+    color: #dc3545; /* สีแดงสำหรับโน้ตในรายการที่สั่งไปแล้ว */
     font-weight: normal;
+    font-style: italic;
+    /* max-width: none; ถูกเอาออกไปเพื่อให้ JS ควบคุมการตัดคำถ้าจำเป็น */
 }
 #current-order-items-display .text-muted.d-block {
     font-size: 0.8rem;
     margin-top: 0.1rem;
 }
+
 
 /* Kitchen Order Card */
 .kitchen-order-card.status-pending { border-left: 5px solid #ffc107; }
@@ -229,42 +240,75 @@ body {
 .kitchen-order-card .card-header {
     font-weight: bold;
 }
+.kitchen-order-card .list-group-item .text-danger.fst-italic { /* สไตล์โน้ตในหน้าครัว */
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+}
+
 
 /* Admin Accordion */
-.admin-table-card .accordion-button { /* Target a more specific selector */
+.admin-table-card .accordion-button {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
-    font-size: 0.9rem; /* ลดขนาดฟอนต์ในปุ่ม accordion เล็กน้อย */
+    font-size: 0.9rem;
 }
 .admin-table-card .accordion-button strong {
-    font-size: 1rem; /* ทำให้ "โต๊ะ X" ใหญ่กว่าข้อความอื่นเล็กน้อย */
+    font-size: 1rem;
 }
-.admin-table-card .accordion-button .badge { /* ขนาด badge ยอดรวม */
+.admin-table-card .accordion-button .badge {
     font-size: 0.85rem;
     padding: 0.4em 0.6em;
 }
-.admin-table-card .accordion-button .order-ids-display { /* Order IDs text */
+.admin-table-card .accordion-button .order-ids-display {
     font-size: 0.75rem;
-    margin-left: 0.5rem; /* เพิ่มระยะห่าง */
-    white-space: nowrap; /* ไม่ให้ตัดคำ */
-    overflow: hidden; /* ซ่อนส่วนที่เกิน */
-    text-overflow: ellipsis; /* แสดง ... ถ้าเกิน */
-    max-width: 100px; /* จำกัดความกว้างสูงสุด (ปรับตามความเหมาะสม) */
+    margin-left: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+    flex-shrink: 1;
 }
-
-/* ***** เปลี่ยนสี Accordion Header เมื่อ Active ***** */
 .admin-table-card .accordion-button:not(.collapsed) {
     color: #fff;
-    background-color: #27498c; /* <<<<---- สีน้ำเงินที่คุณต้องการ */
+    background-color: #27498c; /* สีน้ำเงิน */
     box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
 }
-.admin-table-card .accordion-button:not(.collapsed)::after { /* เปลี่ยนสีลูกศร accordion */
+.admin-table-card .accordion-button:not(.collapsed)::after {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
 }
 .admin-table-card .accordion-button:focus {
-    box-shadow: 0 0 0 .25rem rgba(39, 73, 140, 0.25); /* ปรับสี focus ให้เข้ากัน */
+    box-shadow: 0 0 0 .25rem rgba(39, 73, 140, 0.25);
     border-color: rgba(39, 73, 140, 0.5);
 }
+.admin-item-note { /* สไตล์โน้ตในรายการของ Admin */
+    font-size: 0.8rem;
+    /* text-danger ถูกใส่ใน JS แล้ว */
+    /* font-style: italic; ถูกใส่ใน JS แล้ว */
+    /* d-block ถูกใส่ใน JS แล้ว */
+    margin-top: 0.1rem;
+}
+.admin-item-status-time { /* สไตล์สถานะและเวลาในรายการของ Admin */
+    font-size: 0.75rem;
+}
+.admin-item-status-time .fst-italic {
+    color: #6c757d;
+}
+.list-group-item.text-muted-cancelled { /* สไตล์รายการที่ยกเลิกใน Admin */
+    background-color: #f8f9fa;
+}
+.list-group-item.text-muted-cancelled .fw-bold,
+.list-group-item.text-muted-cancelled .text-primary, /* ถ้าโน้ตเคยใช้ text-primary */
+.list-group-item.text-muted-cancelled .admin-item-status-time,
+.list-group-item.text-muted-cancelled .text-danger.admin-item-note strong, /* ทำให้ "โน้ต:" จางลงด้วย */
+.list-group-item.text-muted-cancelled .text-danger.admin-item-note {
+    color: #6c757d !important;
+}
+.list-group-item.text-muted-cancelled .badge.bg-light,
+.list-group-item.text-muted-cancelled .badge.bg-secondary { /* ราคารายการที่ยกเลิก */
+    background-color: #e9ecef !important;
+    color: #6c757d !important;
+}
+
 
 /* Floating Action Button (FAB) for scrolling (หน้าลูกค้า) */
 .scroll-to-cart-btn {
@@ -299,7 +343,7 @@ body {
     right: -5px;
 }
 
-/* Item Note Modal Textarea */
+/* Item Note Modal Textarea (หน้าลูกค้า) */
 #item-note-modal .modal-body textarea {
     min-height: 80px;
 }
@@ -316,38 +360,39 @@ body {
 /* Responsive adjustments */
 @media (max-width: 768px) {
     body {
-        padding-top: 60px; /* ปรับให้สอดคล้องกับ Navbar ที่อาจจะเตี้ยลง */
+        padding-top: 60px;
     }
-    .page-header h1 { /* หน้าลูกค้า */
+    .page-header h1 {
         font-size: 1.5rem;
     }
     #user-message-container {
-        top: 70px; /* หรือค่าที่เหมาะสม */
+        top: 70px;
     }
-    .menu-card-no-image .card-title { /* หน้าลูกค้า */
+    .menu-card-no-image .card-title {
         font-size: 0.9rem;
     }
-    .menu-card-no-image .price { /* หน้าลูกค้า */
+    .menu-card-no-image .price {
         font-size: 0.85rem;
     }
-    .summary-section h3, .summary-section h4 { /* หน้าลูกค้า */
+    .summary-section h3, .summary-section h4 {
         font-size: 1rem;
     }
-    .summary-section h4 { /* หน้าลูกค้า */
+    .summary-section h4 {
         font-size: 0.95rem;
     }
-    .admin-table-card .accordion-button { /* หน้าแอดมิน */
-        font-size: 0.85rem; /* ลดขนาดฟอนต์บนมือถืออีก */
+    .admin-table-card .accordion-button {
+        font-size: 0.85rem;
     }
-    .admin-table-card .accordion-button .order-ids-display { /* หน้าแอดมิน */
-        max-width: 70px; /* อาจจะต้องลดความกว้างของ Order IDs บนมือถือ */
+    .admin-table-card .accordion-button .order-ids-display {
+        max-width: 70px;
     }
 }
-@media (max-width: 575px) { /* สำหรับหน้าจอที่แคบมากๆ */
+@media (max-width: 575px) {
     .admin-table-card .accordion-button .order-ids-display {
-        display: none; /* ซ่อน Order IDs ไปเลยถ้าหน้าจอแคบมาก */
+        /* display: none; */ /* อาจจะยังแสดงอยู่ แต่สั้นลงมาก */
+        max-width: 40px; /* สั้นลงอีกสำหรับจอแคบสุดๆ */
     }
-    .admin-table-card .accordion-button .badge { /* ยอดรวม */
+    .admin-table-card .accordion-button .badge {
         font-size: 0.8rem;
     }
 }
