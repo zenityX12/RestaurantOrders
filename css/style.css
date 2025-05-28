@@ -4,7 +4,7 @@ body {
     background-color: #f8f9fa;
     color: #333;
     padding-top: 70px; /* สำหรับ fixed navbar */
-    padding-bottom: 90px; /* เพิ่ม padding ด้านล่างให้ body ถ้า FAB สูง */
+    padding-bottom: 90px;
 }
 
 /* Navbar Styling */
@@ -12,17 +12,13 @@ body {
     border-bottom: 1px solid #e0e0e0;
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
-    /* background-color: #ffffff; /* Uncomment ถ้าต้องการพื้นหลังขาว */
-}
-.navbar-brand img {
-    max-height: 40px;
-    margin-right: 10px;
+    background-color: #f8f9fa; /* หรือ #ffffff ถ้าต้องการพื้นขาว */
 }
 .navbar-brand-text {
     font-weight: normal;
     font-size: 1rem;
 }
-#nav-cart-total {
+#nav-cart-total { /* สำหรับหน้าลูกค้า */
     font-weight: bold;
     font-size: 0.9rem;
 }
@@ -31,36 +27,28 @@ body {
     padding-bottom: .25rem;
 }
 
-
-/* Page Header Styling */
+/* Page Header Styling (หน้าลูกค้า) */
 .page-header {
     background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
     color: white;
-    padding: 1.5rem 1rem; /* ลด padding จากเดิมเล็กน้อย */
-    margin-bottom: 1.5rem; /* ลด margin-bottom */
+    padding: 1.5rem 1rem;
+    margin-bottom: 1.5rem;
     border-radius: 0 0 .5rem .5rem;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-.page-header h1, .page-header h2 {
-    margin: 0;
-    font-weight: 300;
-}
 .page-header h1 {
-    font-size: 1.75rem; /* ปรับขนาดให้เหมาะสมกับมือถือ */
-}
-.page-header h2 { /* ไม่ได้ใช้ h2 ใน header ล่าสุดแล้ว */
-    font-size: 1.2rem;
-    opacity: 0.9;
+    font-size: 1.75rem;
 }
 
-/* Category Pills Navigation */
+
+/* Category Pills Navigation (หน้าลูกค้า) */
 #category-nav-pills .nav-link {
     color: #6c757d;
     margin-right: 0.25rem;
-    margin-bottom: 0.5rem; /* เพิ่มระยะห่างระหว่างแถวของ pills */
+    margin-bottom: 0.5rem;
     border: 1px solid #dee2e6;
-    padding: 0.375rem 0.75rem; /* ปรับ padding ของ pill */
+    padding: 0.375rem 0.75rem;
     font-size: 0.9rem;
 }
 #category-nav-pills .nav-link.active {
@@ -69,7 +57,7 @@ body {
     border-color: #6200EA;
 }
 
-/* Category Header in Menu */
+/* Category Header in Menu (หน้าลูกค้า) */
 .category-header {
     background-color: #e9ecef;
     padding: 0.5rem 1rem;
@@ -81,17 +69,17 @@ body {
     font-size: 1.1rem;
 }
 
-/* Card Styling (Menu Items, Orders) */
+/* Card Styling (Menu Items - หน้าลูกค้า) */
 .menu-card-no-image {
     transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
     border: 1px solid #e0e0e0;
-    border-radius: 0.5rem; /* ลดความมนลงเล็กน้อย */
+    border-radius: 0.5rem;
     background-color: #fff;
     overflow: hidden;
-    margin-bottom: 1rem; /* ลด margin-bottom ของ card */
+    margin-bottom: 1rem;
 }
 .menu-card-no-image:hover {
-    transform: translateY(-3px); /* ลดการ hover effect */
+    transform: translateY(-3px);
     box-shadow: 0 .3rem 1rem rgba(0,0,0,.1)!important;
 }
 .menu-card-no-image .card-body {
@@ -105,7 +93,7 @@ body {
     color: #333;
     font-size: 0.95rem;
     line-height: 1.3;
-    margin-bottom: 0.25rem !important; /* ลด margin ของ title */
+    margin-bottom: 0.25rem !important;
 }
 .menu-card-no-image .price {
     font-size: 0.9rem;
@@ -126,12 +114,11 @@ body {
 .menu-card-no-image .small.text-muted {
     font-size: 0.75rem;
     line-height: 1.2;
-    margin-top: 0.25rem; /* เพิ่ม margin-top เล็กน้อยถ้ามี description */
+    margin-top: 0.25rem;
 }
 .menu-card-no-image .d-flex .flex-grow-1 {
     min-width: 0;
 }
-
 
 /* Button Styling */
 .btn-primary {
@@ -189,14 +176,14 @@ body {
     position: fixed;
     top: 80px;
     right: 20px;
-    left: 20px; /* ให้แสดงผลกลางๆ บนมือถือได้ดีขึ้น */
+    left: 20px;
     z-index: 1055;
-    width: auto; /* ให้ปรับตาม content */
-    max-width: 400px; /* จำกัดความกว้างสูงสุด */
-    margin-left: auto; /* จัดกึ่งกลาง */
-    margin-right: auto; /* จัดกึ่งกลาง */
+    width: auto;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
 }
-@media (min-width: 576px) { /* สำหรับจอใหญ่ขึ้น ให้ชิดขวาเหมือนเดิม */
+@media (min-width: 576px) {
     #user-message-container {
         left: auto;
         margin-left: unset;
@@ -204,44 +191,37 @@ body {
     }
 }
 
-
-/* Cart & Order Summary Styling */
+/* Cart & Order Summary Styling (หน้าลูกค้า) */
 .summary-section {
     background-color: #ffffff;
-    padding: 1.25rem; /* ลด padding เล็กน้อย */
+    padding: 1.25rem;
     border-radius: 0.5rem;
     box-shadow: 0 2px 10px rgba(0,0,0,.075);
     margin-bottom: 1.5rem;
 }
 .summary-section h3, .summary-section h4 {
     color: #5E35B1;
-    font-size: 1.1rem; /* ปรับขนาด h3, h4 */
+    font-size: 1.1rem;
 }
 .summary-section h4 {
     font-size: 1rem;
 }
-
 .cart-item-note {
     font-size: 0.8rem;
-    color: #dc3545; /* สีแดงสำหรับโน้ตที่ลูกค้าใส่ */
+    color: #dc3545;
     font-style: italic;
-    margin-top: 0.1rem; /* ปรับระยะห่างของโน้ต */
-    /* d-block ถูกใส่ใน JS แล้ว */
+    margin-top: 0.1rem;
 }
-
-/* Current order section note styling */
 #current-order-items-display .cart-item-note {
-    /* สไตล์เฉพาะสำหรับโน้ตในรายการที่สั่งไปแล้ว (ถ้าต้องการให้ต่างจากในตะกร้า) */
-    color: #5E35B1; /* อาจจะใช้สีม่วงเพื่อให้ดูต่าง */
+    color: #5E35B1;
     font-weight: normal;
 }
-#current-order-items-display .text-muted.d-block { /* สถานะในรายการที่สั่งไปแล้ว */
+#current-order-items-display .text-muted.d-block {
     font-size: 0.8rem;
     margin-top: 0.1rem;
 }
 
-
-/* Kitchen Order Card (สไตล์เดิม) */
+/* Kitchen Order Card */
 .kitchen-order-card.status-pending { border-left: 5px solid #ffc107; }
 .kitchen-order-card.status-confirmed { border-left: 5px solid #17a2b8; }
 .kitchen-order-card.status-preparing { border-left: 5px solid #fd7e14; }
@@ -250,17 +230,43 @@ body {
     font-weight: bold;
 }
 
-/* Admin Accordion (สไตล์เดิม) */
-.accordion-button:not(.collapsed) {
-    color: #fff;
-    background-color: #6a11cb;
+/* Admin Accordion */
+.admin-table-card .accordion-button { /* Target a more specific selector */
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-size: 0.9rem; /* ลดขนาดฟอนต์ในปุ่ม accordion เล็กน้อย */
 }
-.accordion-button:focus {
-    box-shadow: none;
-    border-color: rgba(0,0,0,.125);
+.admin-table-card .accordion-button strong {
+    font-size: 1rem; /* ทำให้ "โต๊ะ X" ใหญ่กว่าข้อความอื่นเล็กน้อย */
+}
+.admin-table-card .accordion-button .badge { /* ขนาด badge ยอดรวม */
+    font-size: 0.85rem;
+    padding: 0.4em 0.6em;
+}
+.admin-table-card .accordion-button .order-ids-display { /* Order IDs text */
+    font-size: 0.75rem;
+    margin-left: 0.5rem; /* เพิ่มระยะห่าง */
+    white-space: nowrap; /* ไม่ให้ตัดคำ */
+    overflow: hidden; /* ซ่อนส่วนที่เกิน */
+    text-overflow: ellipsis; /* แสดง ... ถ้าเกิน */
+    max-width: 100px; /* จำกัดความกว้างสูงสุด (ปรับตามความเหมาะสม) */
 }
 
-/* Floating Action Button (FAB) for scrolling */
+/* ***** เปลี่ยนสี Accordion Header เมื่อ Active ***** */
+.admin-table-card .accordion-button:not(.collapsed) {
+    color: #fff;
+    background-color: #27498c; /* <<<<---- สีน้ำเงินที่คุณต้องการ */
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
+}
+.admin-table-card .accordion-button:not(.collapsed)::after { /* เปลี่ยนสีลูกศร accordion */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+.admin-table-card .accordion-button:focus {
+    box-shadow: 0 0 0 .25rem rgba(39, 73, 140, 0.25); /* ปรับสี focus ให้เข้ากัน */
+    border-color: rgba(39, 73, 140, 0.5);
+}
+
+/* Floating Action Button (FAB) for scrolling (หน้าลูกค้า) */
 .scroll-to-cart-btn {
     position: fixed;
     bottom: 20px;
@@ -295,40 +301,53 @@ body {
 
 /* Item Note Modal Textarea */
 #item-note-modal .modal-body textarea {
-    min-height: 80px; /* ลดความสูง textarea เล็กน้อย */
+    min-height: 80px;
 }
-
 
 /* Footer */
 .footer {
     background-color: #343a40;
     color: white;
-    padding: 1rem 0; /* ลด padding footer */
+    padding: 1rem 0;
     text-align: center;
-    margin-top: 2rem; /* ลด margin-top footer */
+    margin-top: 2rem;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
     body {
-        padding-top: 60px;
+        padding-top: 60px; /* ปรับให้สอดคล้องกับ Navbar ที่อาจจะเตี้ยลง */
     }
-    .page-header h1 {
+    .page-header h1 { /* หน้าลูกค้า */
         font-size: 1.5rem;
     }
     #user-message-container {
-        top: 70px;
+        top: 70px; /* หรือค่าที่เหมาะสม */
     }
-    .menu-card-no-image .card-title {
+    .menu-card-no-image .card-title { /* หน้าลูกค้า */
         font-size: 0.9rem;
     }
-    .menu-card-no-image .price {
+    .menu-card-no-image .price { /* หน้าลูกค้า */
         font-size: 0.85rem;
     }
-    .summary-section h3, .summary-section h4 {
+    .summary-section h3, .summary-section h4 { /* หน้าลูกค้า */
         font-size: 1rem;
     }
-    .summary-section h4 {
+    .summary-section h4 { /* หน้าลูกค้า */
         font-size: 0.95rem;
+    }
+    .admin-table-card .accordion-button { /* หน้าแอดมิน */
+        font-size: 0.85rem; /* ลดขนาดฟอนต์บนมือถืออีก */
+    }
+    .admin-table-card .accordion-button .order-ids-display { /* หน้าแอดมิน */
+        max-width: 70px; /* อาจจะต้องลดความกว้างของ Order IDs บนมือถือ */
+    }
+}
+@media (max-width: 575px) { /* สำหรับหน้าจอที่แคบมากๆ */
+    .admin-table-card .accordion-button .order-ids-display {
+        display: none; /* ซ่อน Order IDs ไปเลยถ้าหน้าจอแคบมาก */
+    }
+    .admin-table-card .accordion-button .badge { /* ยอดรวม */
+        font-size: 0.8rem;
     }
 }
