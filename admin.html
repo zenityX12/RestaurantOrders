@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>จัดการออเดอร์</title>
+    <title>ระบบจัดการร้านอาหาร (แอดมิน)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* (Optional) ถ้าต้องการสไตล์เฉพาะหน้า admin เพิ่มเติม */
-        .navbar { /* ทำให้ Navbar ของ Admin เหมือนกับหน้าลูกค้า */
-            border-bottom: 1px solid #e0e0e0;
-        }
+        /* สไตล์เพิ่มเติมเฉพาะหน้า admin (ถ้ามี) */
+        /* Navbar ของ Admin จะใช้สไตล์ร่วมจาก style.css และมีการปรับ padding-top ของ body ด้านล่าง */
         body {
             padding-top: 70px; /* สำหรับ fixed navbar */
+        }
+        .navbar { /* อาจจะย้ายไป style.css ถ้าต้องการให้เหมือนกันทุกหน้า */
+            border-bottom: 1px solid #e0e0e0;
         }
     </style>
 </head>
@@ -22,7 +23,7 @@
     <nav class="navbar navbar-expand-lg fixed-top bg-light shadow-sm">
         <div class="container">
             <a class="navbar-brand mb-0" href="#">
-                <span class="navbar-brand-text" id="config-restaurant-name-nav-admin">ระบบจัดการร้าน</span>
+                <span class="navbar-brand-text">ระบบจัดการร้านอาหาร (แอดมิน)</span>
             </a>
             </div>
     </nav>
@@ -54,20 +55,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/config.js"></script>
-    <script src="js/site-config.js"></script>
-    <script src="js/shared.js"></script>
+    <script src="js/site-config.js"></script> <script src="js/shared.js"></script>
     <script src="js/admin.js"></script>
     <script>
-        // Script สำหรับโหลดค่าจาก SITE_CONFIG มาแสดงผล (ถ้ามี)
+        // Script สำหรับโหลดค่าจาก SITE_CONFIG มาแสดงผล (สำหรับ Footer)
         document.addEventListener('DOMContentLoaded', function() {
             if (window.SITE_CONFIG) {
-                const restaurantName = window.SITE_CONFIG.restaurantName || "ระบบจัดการร้าน";
+                const restaurantName = window.SITE_CONFIG.restaurantName || "ชื่อร้าน"; // ชื่อร้านหลักสำหรับ Footer
                 const footerTxt = window.SITE_CONFIG.footerText || "สงวนลิขสิทธิ์";
 
-                document.title = `${restaurantName} - จัดการออเดอร์`;
-
-                const navRestaurantNameEl = document.getElementById('config-restaurant-name-nav-admin');
-                if (navRestaurantNameEl) navRestaurantNameEl.textContent = restaurantName;
+                // Title ของหน้าถูกตั้งค่าใน <title> tag โดยตรงแล้ว
+                // document.title = `ระบบจัดการร้านอาหาร (แอดมิน)`; // หรือดึงจาก SITE_CONFIG ถ้าต้องการ
 
                 const footerRestaurantNameEl = document.getElementById('config-restaurant-name-footer-admin');
                 if (footerRestaurantNameEl) footerRestaurantNameEl.textContent = restaurantName;
