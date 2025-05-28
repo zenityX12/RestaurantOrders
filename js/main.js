@@ -348,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 note: item.note || ""
             }))
         };
-        // Restore button state - this should ideally be in a .finally or after await in the caller
         setTimeout(() => {
              submitOrderBtn.disabled = (cart.length === 0);
              submitOrderBtn.innerHTML = originalButtonText;
@@ -370,18 +369,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (orders && Array.isArray(orders) && orders.length > 0) {
             const ul = document.createElement('ul');
             ul.className = 'list-group list-group-flush';
-            orders.forEach(item => { // 'item' ในที่นี้คือ order item ที่ได้จาก server
+            orders.forEach(item => {
                 const li = document.createElement('li');
-                li.className = 'list-group-item d-flex justify-content-between align-items-start px-0';
-                // ***** ส่วนที่แก้ไข Comment ที่ผิดพลาด *****
-                li.innerHTML = `
-                    <div class="flex-grow-1">
-                        ${item.ItemName} x ${item.Quantity}
-                        ${item.ItemNote ? `<br><small class="cart-item-note" style="max-width: none; color: #dc3545; font-style: italic;"><strong>โน้ต:</strong> ${item.ItemNote}</small>` : ''}
-                        <br><small class="text-muted">(สถานะ: ${item.Status})</small>
-                    </div>
-                    <span class="badge bg-light text-dark mt-1">${parseFloat(item.Subtotal).toFixed(2)} บ.</span>
-                `;
+                li.className = 'list-group-item d-flex justify-content-between align-items-start px-0 py-2';
+
+                let itemInfoHtml = `<div class="me-auto">
+                                        <span class="fw-bold">${item.ItemName} x ${item.Quantity}</span>`;
+                if (item.ItemNote) { // ItemNote คือชื่อคอลัมน์จาก Google Sheet
+                    itemInfoHtml += `<small class="cart-item-note d-block" style="color: #dc3545; font-style: italic;"><strong>โน้ต:</strong> ${item.ItemNote}</small>`;
+                }
+                itemInfoHtml += `<small class="text-muted d-block">(สถานะ: ${item.Status})</small>
+                                   </div>`;
+                let priceHtml = `<span class="badge bg-light text-dark p-2">${parseFloat(item.Subtotal).toFixed(2)} บ.</span>`;
+
+                li.innerHTML = itemInfoHtml + priceHtml;
                 ul.appendChild(li);
                 currentTotal += parseFloat(item.Subtotal);
             });
