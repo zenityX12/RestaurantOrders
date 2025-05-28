@@ -3,13 +3,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     const tableNumber = getUrlParameter('table');
 
-    // DOM Elements for Table Number (เหมือนเดิม)
-    const tableNumberTitleEl = document.getElementById('table-number-title-placeholder'); // แก้ ID ให้ตรงกับ HTML ล่าสุด
+    // DOM Elements for Table Number
+    const tableNumberTitleEl = document.getElementById('table-number-title-placeholder');
     const tableNumberNavEl = document.getElementById('table-number-nav');
     const currentOrderTableNumEl = document.getElementById('current-order-table-num');
 
-
-    // DOM Elements for Menu & Cart (เหมือนเดิม)
+    // DOM Elements for Menu & Cart
     const menuContainer = document.getElementById('menu-items-container');
     const menuLoadingPlaceholder = document.getElementById('menu-loading-placeholder');
     const categoryNavPillsContainer = document.getElementById('category-nav-pills');
@@ -19,29 +18,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartItemCountSummaryEl = document.getElementById('cart-item-count-summary');
     const submitOrderBtn = document.getElementById('submit-order-btn');
 
-    // DOM Elements for Navbar Cart Info (เหมือนเดิม)
+    // DOM Elements for Navbar Cart Info
     const navCartTotalEl = document.getElementById('nav-cart-total');
     const fabCartCountEl = document.getElementById('fab-cart-count');
 
-    // DOM Elements for Current Order (เหมือนเดิม)
+    // DOM Elements for Current Order
     const currentOrderItemsDisplay = document.getElementById('current-order-items-display');
     const currentOrderTotalEl = document.getElementById('current-order-total');
 
-    // DOM Elements for Scroll Button (เหมือนเดิม)
+    // DOM Elements for Scroll Button
     const scrollToCartFab = document.getElementById('scroll-to-cart-fab');
     const cartAndOrderSummarySection = document.getElementById('cart-and-order-summary-section');
 
     // DOM Elements for Item Note Modal
     const itemNoteModalEl = document.getElementById('item-note-modal');
-    const itemNoteModalInstance = itemNoteModalEl ? new bootstrap.Modal(itemNoteModalEl) : null; // สร้าง Instance ของ Modal
+    const itemNoteModalInstance = itemNoteModalEl ? new bootstrap.Modal(itemNoteModalEl) : null;
     const modalItemNameEl = document.getElementById('modal-item-name');
     const modalItemIdInputEl = document.getElementById('modal-item-id-input');
     const modalItemNoteTextareaEl = document.getElementById('modal-item-note-textarea');
     const saveItemNoteBtn = document.getElementById('save-item-note-btn');
 
-
     let menuData = [];
-    let cart = []; // ตอนนี้ cart item จะมี property 'note' เพิ่มเข้ามา
+    let cart = [];
     const CART_STORAGE_KEY_PREFIX = 'restaurant_cart_table_';
     let cartStorageKey = '';
     let categoriesInOrder = [];
@@ -52,17 +50,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    if(tableNumberTitleEl) tableNumberTitleEl.textContent = tableNumber; // ตั้งค่า table number ใน title placeholder
+    if(tableNumberTitleEl) tableNumberTitleEl.textContent = tableNumber;
     if(tableNumberNavEl) tableNumberNavEl.textContent = tableNumber;
     if(currentOrderTableNumEl) currentOrderTableNumEl.textContent = tableNumber;
     cartStorageKey = `${CART_STORAGE_KEY_PREFIX}${tableNumber}`;
 
-    // --- Cart Logic (ปรับปรุง renderCart, เพิ่มฟังก์ชันจัดการ Note Modal) ---
+    // --- Cart Logic ---
     function loadCartFromStorage() {
         const storedCart = localStorage.getItem(cartStorageKey);
         if (storedCart) {
             cart = JSON.parse(storedCart);
-            // ตรวจสอบว่าแต่ละ item ใน cart มี property 'note' หรือไม่ ถ้าไม่มีให้เพิ่มเป็น string ว่าง
             cart.forEach(item => {
                 if (item.note === undefined) {
                     item.note = "";
@@ -86,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cartItem) {
             cartItem.quantity++;
         } else {
-            // เพิ่ม property 'note' เป็น string ว่างเมื่อเพิ่มสินค้าใหม่
             cart.push({ itemId: menuItem.ItemID, name: menuItem.Name, price: parseFloat(menuItem.Price), quantity: 1, note: "" });
         }
         renderCart();
@@ -132,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const itemSubtotal = item.price * item.quantity;
                 const li = document.createElement('li');
                 li.className = 'list-group-item d-flex justify-content-between align-items-center py-2 px-0';
-                // ***** เพิ่มปุ่มแก้ไขโน้ต และแสดงโน้ต (ถ้ามี) *****
                 li.innerHTML = `
                     <div class="flex-grow-1">
                         <div class="d-flex align-items-center">
@@ -160,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ul.querySelectorAll('.decrease-qty-btn').forEach(btn => btn.addEventListener('click', e => updateQuantity(e.currentTarget.dataset.itemid, -1)));
             ul.querySelectorAll('.increase-qty-btn').forEach(btn => btn.addEventListener('click', e => updateQuantity(e.currentTarget.dataset.itemid, 1)));
             ul.querySelectorAll('.remove-item-btn').forEach(btn => btn.addEventListener('click', e => removeFromCart(e.currentTarget.dataset.itemid)));
-            // ***** ผูก Event Listener กับปุ่มแก้ไขโน้ตใหม่ *****
             ul.querySelectorAll('.open-note-modal-btn').forEach(btn => btn.addEventListener('click', e => handleOpenNoteModal(e.currentTarget.dataset.itemid)));
         }
         cartTotalSummaryEl.textContent = total.toFixed(2);
@@ -176,12 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Item Note Modal Logic ---
     function handleOpenNoteModal(itemId) {
         if (!itemNoteModalInstance) return;
-
         const cartItem = cart.find(item => item.itemId === itemId);
         if (cartItem) {
             if(modalItemNameEl) modalItemNameEl.textContent = cartItem.name;
             if(modalItemIdInputEl) modalItemIdInputEl.value = cartItem.itemId;
-            if(modalItemNoteTextareaEl) modalItemNoteTextareaEl.value = cartItem.note || ""; // แสดงโน้ตเดิม หรือ string ว่าง
+            if(modalItemNoteTextareaEl) modalItemNoteTextareaEl.value = cartItem.note || "";
             itemNoteModalInstance.show();
         } else {
             showUserMessage("ไม่พบรายการสินค้าในตะกร้า", "warning");
@@ -191,15 +184,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (saveItemNoteBtn) {
         saveItemNoteBtn.addEventListener('click', () => {
             if (!modalItemIdInputEl || !modalItemNoteTextareaEl) return;
-
             const itemId = modalItemIdInputEl.value;
             const newNote = modalItemNoteTextareaEl.value.trim();
-
             const cartItem = cart.find(item => item.itemId === itemId);
             if (cartItem) {
                 cartItem.note = newNote;
                 saveCartToStorage();
-                renderCart(); // อัปเดตการแสดงผลในตะกร้า
+                renderCart();
                 if (itemNoteModalInstance) itemNoteModalInstance.hide();
                 showUserMessage("บันทึกโน้ตเรียบร้อยแล้ว", "success");
             } else {
@@ -208,8 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
-    // --- Menu Logic (เหมือนเดิม) ---
+    // --- Menu Logic ---
     async function loadMenu() {
         if(menuLoadingPlaceholder) menuLoadingPlaceholder.style.display = 'block';
         menuContainer.innerHTML = '';
@@ -323,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
         menuContainer.appendChild(cardElement);
     }
 
-    // --- Order Submission Logic (ปรับปรุงให้ส่ง note ไปด้วย) ---
+    // --- Order Submission Logic ---
     submitOrderBtn.addEventListener('click', async () => {
         if (cart.length === 0) {
             showUserMessage("กรุณาเลือกรายการอาหารก่อนทำการสั่งซื้อ", "warning");
@@ -332,15 +322,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm("คุณต้องการยืนยันการสั่งซื้อรายการเหล่านี้ใช่หรือไม่?")) {
             return;
         }
-        // User initiated action, show spinner
         const result = await fetchData("submitOrder", {}, 'POST', cartToOrderPayload(), false);
 
         if (result && result.success) {
             showUserMessage(`สั่งอาหารสำเร็จ! ${result.message || ''}`, "success");
-            cart = []; // เคลียร์ตะกร้า
-            saveCartToStorage(); // เคลียร์ local storage
-            renderCart(); // render ตะกร้าที่ว่างเปล่า
-            loadCurrentTableOrders(true); // โหลดรายการที่สั่งไปแล้วใหม่ (ถ้ามี)
+            cart = [];
+            saveCartToStorage();
+            renderCart();
+            loadCurrentTableOrders(true);
         } else {
             showUserMessage("เกิดข้อผิดพลาดในการสั่งอาหาร: " + (result ? result.message : "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้"), "danger");
         }
@@ -353,26 +342,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const payload = {
             tableNumber: tableNumber,
-            // ***** ส่ง property 'note' ของแต่ละ item ไปด้วย *****
             items: cart.map(item => ({
                 itemId: item.itemId,
                 quantity: item.quantity,
-                note: item.note || "" // ถ้า item.note เป็น undefined ให้ส่งเป็น string ว่าง
+                note: item.note || ""
             }))
         };
-
-        // Restore button state (ควรจะทำหลังจาก fetchData เสร็จสมบูรณ์)
-        // นี่เป็นวิธีที่ไม่ค่อยดีนัก ควรจะ restore ใน .then() หรือ .finally() ของ Promise
-        // แต่เพื่อความง่าย จะ restore หลังจากสร้าง payload ไปก่อน
+        // Restore button state - this should ideally be in a .finally or after await in the caller
         setTimeout(() => {
              submitOrderBtn.disabled = (cart.length === 0);
              submitOrderBtn.innerHTML = originalButtonText;
         }, 500);
-
         return payload;
     }
 
-    // --- Current Order Display Logic (ปรับปรุงให้แสดง note ถ้ามี) ---
+    // --- Current Order Display Logic ---
     async function loadCurrentTableOrders(isInitialLoad = false) {
         const orders = await fetchData('getOrdersByTable', { table: tableNumber }, 'GET', null, !isInitialLoad);
 
@@ -388,11 +372,12 @@ document.addEventListener('DOMContentLoaded', () => {
             ul.className = 'list-group list-group-flush';
             orders.forEach(item => { // 'item' ในที่นี้คือ order item ที่ได้จาก server
                 const li = document.createElement('li');
-                li.className = 'list-group-item d-flex justify-content-between align-items-start px-0'; // align-items-start
+                li.className = 'list-group-item d-flex justify-content-between align-items-start px-0';
+                // ***** ส่วนที่แก้ไข Comment ที่ผิดพลาด *****
                 li.innerHTML = `
                     <div class="flex-grow-1">
                         ${item.ItemName} x ${item.Quantity}
-                        ${item.ItemNote ? `<br><small class="cart-item-note" style="max-width: none;">โน้ต: ${item.ItemNote}</small>` : ''} {/* แสดง ItemNote ที่ได้จาก Server */}
+                        ${item.ItemNote ? `<br><small class="cart-item-note" style="max-width: none; color: #dc3545; font-style: italic;"><strong>โน้ต:</strong> ${item.ItemNote}</small>` : ''}
                         <br><small class="text-muted">(สถานะ: ${item.Status})</small>
                     </div>
                     <span class="badge bg-light text-dark mt-1">${parseFloat(item.Subtotal).toFixed(2)} บ.</span>
@@ -409,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentOrderTotalEl.textContent = currentTotal.toFixed(2);
     }
 
-    // --- Scroll to Cart Button Logic (เหมือนเดิม) ---
+    // --- Scroll to Cart Button Logic ---
     if (scrollToCartFab && cartAndOrderSummarySection) {
         scrollToCartFab.addEventListener('click', () => {
             cartAndOrderSummarySection.scrollIntoView({ behavior: 'smooth' });
@@ -418,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Load and Polling ---
     loadMenu();
-    loadCartFromStorage(); // โหลดตะกร้า (ซึ่งตอนนี้จะมี property 'note' แล้ว)
+    loadCartFromStorage();
     loadCurrentTableOrders(true);
 
     setInterval(() => {
