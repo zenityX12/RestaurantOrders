@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                const uniqueOrderIds = Array.from(new Set(orders.map(o => o.OrderID))).join(', ') || 'N/A';
+                const uniqueOrderIds = Array.from(new Set(orders.map(o => o.OrderID))).map(id => `...${id.slice(-3)}`).join(', ') || 'N/A';
                 const accordionItemId = `table-collapse-${tableNumber.toString().replace(/[^a-zA-Z0-9]/g, '')}`;
                 const accordionHeaderId = `table-header-${tableNumber.toString().replace(/[^a-zA-Z0-9]/g, '')}`;
 
@@ -49,15 +49,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         const itemStatusDisplay = item.Status === "Cancelled" ? `<span class="text-danger fw-bold">${item.Status}</span>` : item.Status;
                         const itemTimestampForAttr = (item.Timestamp instanceof Date) ? item.Timestamp.toISOString() : item.Timestamp;
 
+                        let noteHtml = '';
+                        if (item.ItemNote) {
+                            noteHtml = `<small class="d-block fst-italic text-danger admin-item-note"><strong>โน้ต:</strong> ${item.ItemNote}</small>`;
+                        }
+
+                        let statusAndTimestampHtml = `<small class="d-block text-muted admin-item-status-time">สถานะ: ${itemStatusDisplay} (ID: ...${item.OrderID.slice(-3)})`;
+                        if (item.Status !== "Cancelled" && item.Timestamp) { // ตรวจสอบว่า item.Timestamp มีค่า
+                            statusAndTimestampHtml += `<br><span class="fst-italic">สั่งเมื่อ: ${new Date(item.Timestamp).toLocaleTimeString('th-TH')}</span>`;
+                        }
+                        statusAndTimestampHtml += `</small>`;
+
                         itemsHtml += `
-                            <li class="list-group-item d-flex justify-content-between align-items-center ${item.Status === "Cancelled" ? 'list-group-item-light text-muted' : ''}">
-                                <div>
-                                    ${item.ItemName} x ${item.Quantity}
-                                    ${item.ItemNote ? `<small class="d-block fst-italic text-primary"><strong>โน้ต:</strong> ${item.ItemNote}</small>` : ''}
-                                    <br><small>สถานะ: ${itemStatusDisplay} (ID: ${item.OrderID})</small>
-                                    ${item.Status === "Cancelled" ? '' : `<br><small class="text-muted fst-italic">สั่งเมื่อ: ${new Date(item.Timestamp).toLocaleTimeString('th-TH')}</small>`}
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-2 ${item.Status === "Cancelled" ? 'list-group-item-light text-muted-cancelled' : ''}">
+                                <div class="me-2">
+                                    <span class="fw-bold">${item.ItemName} x ${item.Quantity}</span>
+                                    ${noteHtml}
+                                    ${statusAndTimestampHtml}
                                 </div>
-                                <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-center flex-shrink-0">
                                     <span class="badge ${item.Status === "Cancelled" ? 'bg-secondary' : 'bg-light text-dark'} me-2">${parseFloat(item.Subtotal || 0).toFixed(2)} บ.</span>
                                     ${canCancel ?
                                         `<button class="btn btn-sm btn-outline-danger cancel-order-item-btn"
@@ -81,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const buttonCollapsedClass = isExpanded ? '' : 'collapsed';
                 const divShowClass = isExpanded ? 'show' : '';
 
-                // ***** แก้ไขการแสดงผลใน Accordion Button Header *****
                 newContent += `
                     <div class="accordion-item admin-table-card">
                         <h2 class="accordion-header" id="${accordionHeaderId}">
@@ -107,9 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             });
-            // ***** สิ้นสุดการแก้ไข *****
-
-
             if (adminOrdersAccordion.innerHTML !== newContent && newContent !== '') {
                 adminOrdersAccordion.innerHTML = newContent;
             } else if (newContent === '' && tablesData && tablesData.length === 0) {
@@ -158,6 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const itemId = button.dataset.itemid;
         const itemTimestamp = button.dataset.timestamp;
         const itemName = button.dataset.itemname;
+
+        if (!itemTimestamp || itemTimestamp === "undefined" || itemTimestamp === "null") {
+             showUserMessage(`เกิดข้อผิดพลาด: ไม่พบเวลาสั่งซื้อสำหรับรายการ "${itemName}"`, "danger");
+             console.error("Missing or invalid timestamp for item:", item);
+             return;
+        }
+
 
         if (!confirm(`คุณต้องการยกเลิกรายการ "${itemName}" (เวลาสั่ง: ${new Date(itemTimestamp).toLocaleTimeString('th-TH')}) ในออเดอร์ ${orderId} ใช่หรือไม่?`)) {
             return;
