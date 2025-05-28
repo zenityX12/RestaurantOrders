@@ -14,7 +14,6 @@
         .navbar {
             border-bottom: 1px solid #e0e0e0;
         }
-        /* สามารถเพิ่มสไตล์เฉพาะสำหรับหน้าภาษาพม่าได้ที่นี่ ถ้าต้องการ */
     </style>
 </head>
 <body>
@@ -23,12 +22,11 @@
             <a class="navbar-brand mb-0" href="#">
                 <span class="navbar-brand-text" id="kitchen-nav-title">စားသောက်ဆိုင် စီမံခန့်ခွဲမှု (မီးဖိုချောင်)</span>
             </a>
-            </div>
+        </div>
     </nav>
 
     <div id="loading-spinner" style="display: none;">
         <div class="spinner-border" role="status">
-            {/* ข้อความ "กำลังโหลด..." จะมาจากไฟล์ภาษาผ่าน JS */}
             <span class="visually-hidden" id="spinner-loading-text">ဖွင့်နေသည်...</span>
         </div>
     </div>
@@ -52,20 +50,9 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/config.js"></script> {/* เปลี่ยน path ถ้าจำเป็น */}
-    <script src="../js/site-config.js"></script> {/* เปลี่ยน path ถ้าจำเป็น */}
-    
-    <script src="../js/lang/my.js" id="dynamic-lang-script"></script> {/* เปลี่ยน path ถ้าจำเป็น */}
-    
-    <script src="../js/shared.js"></script> {/* เปลี่ยน path ถ้าจำเป็น */}
-    <script src="../js/kitchen-my.js"></script> {/* <<<<---- เรียกใช้ kitchen-my.js */}
-    <script>
+    <script src="../js/config.js"></script> <script src="../js/site-config.js"></script> <script src="../js/lang/my.js" id="dynamic-lang-script"></script> <script src="../js/shared.js"></script> <script src="../js/kitchen-my.js"></script> <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Logic การตั้งค่า Title และ Footer จาก site-config.js (ถ้าต้องการ)
-            // จะถูกจัดการภายใน kitchen-my.js โดยใช้ฟังก์ชัน _t() ที่ดึงค่าจาก KITCHEN_LANG_MY
-            // และอาจจะดึงชื่อร้านภาษาพม่าจาก SITE_CONFIG ถ้ามีการเพิ่มไว้
-
-            if (window.SITE_CONFIG && window.KITCHEN_LANG_MY) { // ตรวจสอบว่าทั้งสองไฟล์โหลดแล้ว
+            if (window.SITE_CONFIG && window.KITCHEN_LANG_MY) {
                 const restaurantName = window.SITE_CONFIG.restaurantNameMyanmar || window.SITE_CONFIG.restaurantName || "သင်၏စားသောက်ဆိုင်အမည်";
                 const kitchenPageTitleText = window.KITCHEN_LANG_MY.pageTitle || "မီးဖိုချောင် - အော်ဒါစာရင်း";
                 const footerTxt = window.SITE_CONFIG.footerTextMyanmar || window.SITE_CONFIG.footerText || "All rights reserved";
@@ -74,6 +61,17 @@
 
                 const navKitchenTitleEl = document.getElementById('kitchen-nav-title');
                 if (navKitchenTitleEl) navKitchenTitleEl.textContent = window.KITCHEN_LANG_MY.navTitle || kitchenPageTitleText;
+                
+                // อัปเดตข้อความ static อื่นๆ ถ้าจำเป็น (ส่วนใหญ่อยู่ใน kitchen-my.js แล้ว)
+                const ordersHeaderEl = document.getElementById('kitchen-orders-header');
+                if(ordersHeaderEl && window.KITCHEN_LANG_MY.ordersToPrepareHeader) ordersHeaderEl.textContent = window.KITCHEN_LANG_MY.ordersToPrepareHeader;
+
+                const refreshBtnTextEl = document.getElementById('kitchen-refresh-button-text');
+                if(refreshBtnTextEl && window.KITCHEN_LANG_MY.refreshButton) refreshBtnTextEl.textContent = window.KITCHEN_LANG_MY.refreshButton;
+
+                const loadingPlaceholderEl = document.getElementById('kitchen-loading-placeholder');
+                if(loadingPlaceholderEl && window.KITCHEN_LANG_MY.actionSpinnerLoading) loadingPlaceholderEl.textContent = window.KITCHEN_LANG_MY.actionSpinnerLoading;
+
 
                 const footerRestaurantNameEl = document.getElementById('config-restaurant-name-footer-kitchen');
                 if (footerRestaurantNameEl) footerRestaurantNameEl.textContent = restaurantName;
@@ -86,10 +84,10 @@
             if (currentYearElKitchen) currentYearElKitchen.textContent = new Date().getFullYear();
 
             // เรียก initializeKitchenPage ถ้า kitchen-my.js มีฟังก์ชันนี้
-            // หรือให้ kitchen-my.js เริ่มทำงานเองเมื่อ DOMContentLoaded และ KITCHEN_LANG_MY พร้อม
-            if (typeof initializeKitchenPage === 'function') {
-                 initializeKitchenPage();
-            }
+            // (ย้ายการเรียก initializeKitchenPage ไปไว้ใน kitchen-my.js เองจะดีกว่า เพื่อให้แน่ใจว่า LANG_DATA พร้อม)
+            // if (typeof initializeKitchenPage === 'function') {
+            //      initializeKitchenPage();
+            // }
         });
     </script>
 </body>
