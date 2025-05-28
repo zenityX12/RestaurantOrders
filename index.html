@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สั่งอาหาร - โต๊ะ <span id="table-number-title"></span></title>
+    <title>สั่งอาหาร - โต๊ะ <span id="table-number-title-placeholder"></span></title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -37,7 +37,7 @@
     <nav class="navbar navbar-expand-lg fixed-top bg-light shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <a class="navbar-brand mb-0" href="#">
-                <span class="navbar-brand-text">ร้านของคุณ - โต๊ะ <span id="table-number-nav" class="fw-bold"></span></span>
+                <span class="navbar-brand-text"><span id="config-restaurant-name-nav">ร้านอาหาร</span> - โต๊ะ <span id="table-number-nav" class="fw-bold"></span></span>
             </a>
             <div class="ms-auto">
                 <span class="fw-bold navbar-text">
@@ -56,17 +56,15 @@
     <div id="user-message-container"></div>
 
     <header class="page-header py-3">
-        <h1 class="h3"><i class="bi bi-card-list"></i> เลือกเมนูอาหาร</h1>
+        <h1 class="h3"><i class="bi bi-card-list"></i> <span id="config-welcome-message">เลือกเมนูอาหาร</span></h1>
     </header>
 
     <div class="container">
         <ul class="nav nav-pills mb-3" id="category-nav-pills">
-            {/* Category pills will be loaded here by JavaScript */}
-        </ul>
+            </ul>
 
         <section id="menu-section" class="mb-4">
             <div id="menu-items-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-                {/* Menu items grouped by category will be loaded here */}
                 <p id="menu-loading-placeholder" class="col-12 text-center">กำลังโหลดรายการอาหาร...</p>
             </div>
         </section>
@@ -101,15 +99,51 @@
     </button>
 
     <footer class="footer mt-5">
-        <p class="mb-0">&copy; <span id="current-year"></span> ชื่อร้านของคุณ. สงวนลิขสิทธิ์.</p>
+        <p class="mb-0">&copy; <span id="current-year"></span> <span id="config-restaurant-name-footer">ชื่อร้าน</span>. <span id="config-footer-text">สงวนลิขสิทธิ์</span>.</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/shared.js"></script>
+    <script src="js/config.js"></script>       <script src="js/site-config.js"></script> <script src="js/shared.js"></script>
     <script src="js/main.js"></script>
     <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
+        // Script สำหรับโหลดค่าจาก SITE_CONFIG มาแสดงผล
+        document.addEventListener('DOMContentLoaded', function() {
+            // Placeholder สำหรับ table number ใน title (จะถูกเติมโดย main.js ถ้าจำเป็น)
+            const tableNumberPlaceholderEl = document.getElementById('table-number-title-placeholder');
+            const urlParams = new URLSearchParams(window.location.search);
+            const tableNumFromUrl = urlParams.get('table');
+            if (tableNumberPlaceholderEl && tableNumFromUrl) {
+                tableNumberPlaceholderEl.textContent = tableNumFromUrl;
+            }
+
+
+            if (window.SITE_CONFIG) {
+                const restaurantName = window.SITE_CONFIG.restaurantName || "ร้านอาหาร";
+                const welcomeMsg = window.SITE_CONFIG.welcomeMessage || "เลือกเมนูอาหาร";
+                const footerTxt = window.SITE_CONFIG.footerText || "สงวนลิขสิทธิ์";
+
+                // ตั้งชื่อร้านใน Title ของหน้าเว็บ
+                const currentTableNumForTitle = tableNumberPlaceholderEl ? tableNumberPlaceholderEl.textContent : (tableNumFromUrl || "");
+                document.title = `${restaurantName} - สั่งอาหาร (โต๊ะ ${currentTableNumForTitle})`;
+
+                // Navbar
+                const navRestaurantNameEl = document.getElementById('config-restaurant-name-nav');
+                if (navRestaurantNameEl) navRestaurantNameEl.textContent = restaurantName;
+
+                // Welcome Message ใน Page Header
+                const welcomeMessageEl = document.getElementById('config-welcome-message');
+                if (welcomeMessageEl) welcomeMessageEl.textContent = welcomeMsg;
+
+                // Footer
+                const footerRestaurantNameEl = document.getElementById('config-restaurant-name-footer');
+                if (footerRestaurantNameEl) footerRestaurantNameEl.textContent = restaurantName;
+                const footerTextEl = document.getElementById('config-footer-text');
+                if (footerTextEl) footerTextEl.textContent = footerTxt;
+            }
+            // ตั้งค่าปีปัจจุบันใน Footer
+            const currentYearEl = document.getElementById('current-year');
+            if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
+        });
     </script>
 </body>
 </html>
