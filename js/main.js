@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const CART_STORAGE_KEY_PREFIX = 'restaurant_cart_table_';
     let cartStorageKey = '';
     let categoriesInOrder = [];
+    let elapsedTimeIntervalId = null; // For kitchen page timer
 
     if (!tableNumber) {
         showUserMessage("ไม่พบหมายเลขโต๊ะ! กรุณาสแกน QR Code ที่โต๊ะของท่านอีกครั้ง", "danger");
@@ -280,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (itemsToRender.length === 0) {
                 menuContainer.innerHTML = `<p class="text-muted text-center col-12">ไม่มีรายการอาหารในหมวดหมู่ "${selectedCategory}"</p>`;
             } else {
+                // ถ้าเลือกหมวดหมู่เฉพาะ ไม่ต้องแสดง header หมวดหมู่อีก
                 itemsToRender.forEach(item => renderSingleMenuItem(item));
             }
         }
@@ -290,14 +292,17 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="col">
                 <div class="card h-100 menu-card-no-image shadow-sm">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <h5 class="card-title mb-0 me-2 flex-grow-1">${item.Name}</h5>
-                            <span class="card-text price fw-bold text-nowrap">${parseFloat(item.Price).toFixed(2)} บ.</span>
-                            <button class="btn btn-sm btn-outline-secondary add-to-cart-btn ms-2 flex-shrink-0">
-                                <i class="bi bi-cart-plus"></i>
-                            </button>
+                        <div> <div class="menu-item-top-row">
+                                <h5 class="card-title mb-0">${item.Name}</h5>
+                                <div class="price-button-group">
+                                    <span class="card-text price">${parseFloat(item.Price).toFixed(2)} บ.</span>
+                                    <button class="btn btn-sm btn-outline-secondary add-to-cart-btn ms-2">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            ${item.Description ? `<p class="card-text small text-muted mt-1 mb-0">${item.Description}</p>` : ''}
                         </div>
-                        ${item.Description ? `<p class="card-text small text-muted mb-0">${item.Description}</p>` : ''}
                     </div>
                     <input type="hidden" class="add-to-cart-itemid" value="${item.ItemID}">
                 </div>
@@ -322,7 +327,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm("คุณต้องการยืนยันการสั่งซื้อรายการเหล่านี้ใช่หรือไม่?")) {
             return;
         }
-        const result = await fetchData("submitOrder", {}, 'POST', cartToOrderPayload(), false);
+        // cartToOrderPayload จะจัดการเรื่อง disable/enable ปุ่ม และ spinner text
+        const payload = cartToOrderPayload(); // รับ payload และจัดการ UI ภายใน
+        const result = await fetchData("submitOrder", {}, 'POST', payload, false);
+
+        // Restore button state (ย้ายมาทำหลังจาก fetchData เสร็จสิ้น)
+        submitOrderBtn.disabled = (cart.length === 0); // Re-enable based on cart state
+        submitOrderBtn.innerHTML = '<i class="bi bi-check-circle-fill btn-icon"></i>ยืนยันการสั่งซื้อ';
+
 
         if (result && result.success) {
             showUserMessage(`สั่งอาหารสำเร็จ! ${result.message || ''}`, "success");
@@ -336,8 +348,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function cartToOrderPayload() {
+        // Disable button and show loading text when starting to prepare payload
         submitOrderBtn.disabled = true;
-        const originalButtonText = submitOrderBtn.innerHTML;
         submitOrderBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังส่ง...`;
 
         const payload = {
@@ -348,12 +360,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 note: item.note || ""
             }))
         };
-        setTimeout(() => {
-             submitOrderBtn.disabled = (cart.length === 0);
-             submitOrderBtn.innerHTML = originalButtonText;
-        }, 500);
+        // The button text and disabled state will be restored in the submitOrderBtn event listener
+        // AFTER fetchData completes.
         return payload;
     }
+
 
     // --- Current Order Display Logic ---
     async function loadCurrentTableOrders(isInitialLoad = false) {
@@ -375,8 +386,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let itemInfoHtml = `<div class="me-auto">
                                         <span class="fw-bold">${item.ItemName} x ${item.Quantity}</span>`;
-                if (item.ItemNote) { // ItemNote คือชื่อคอลัมน์จาก Google Sheet
-                    itemInfoHtml += `<small class="cart-item-note d-block" style="color: #dc3545; font-style: italic;"><strong>โน้ต:</strong> ${item.ItemNote}</small>`;
+                if (item.ItemNote) {
+                    itemInfoHtml += `<small class="cart-item-note d-block"><strong>โน้ต:</strong> ${item.ItemNote}</small>`;
                 }
                 itemInfoHtml += `<small class="text-muted d-block">(สถานะ: ${item.Status})</small>
                                    </div>`;
@@ -407,7 +418,11 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCartFromStorage();
     loadCurrentTableOrders(true);
 
-    setInterval(() => {
+    // Clear existing interval if any, before setting a new one
+    if (window.loadCurrentTableOrdersIntervalId) {
+        clearInterval(window.loadCurrentTableOrdersIntervalId);
+    }
+    window.loadCurrentTableOrdersIntervalId = setInterval(() => {
         loadCurrentTableOrders(false);
-    }, 60000);
+    }, 60000); // อัปเดตรายการที่สั่งทุก 1 นาที
 });
