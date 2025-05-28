@@ -81,22 +81,25 @@
 ### 📁 โครงสร้างไฟล์
 
 
-/your-project-name/
-├── index.html                   # หน้าสำหรับลูกค้า
-├── admin.html                   # หน้าสำหรับแอดมิน
-├── kitchen.html                 # หน้าสำหรับห้องครัว
-├── css/
-│   └── style.css                # ไฟล์ CSS หลัก
-├── js/
-│   ├── main.js                  # JavaScript สำหรับหน้าลูกค้า
-│   ├── admin.js                 # JavaScript สำหรับหน้าแอดมิน
-│   ├── kitchen.js               # JavaScript สำหรับหน้าห้องครัว
-│   ├── shared.js                # JavaScript ฟังก์ชันที่ใช้ร่วมกัน
-│   ├── config.js                # เก็บ URL ของ Google Apps Script Web App
-│   └── site-config.js           # (Optional) เก็บค่า Config ของร้าน เช่น ชื่อร้าน
-├── assets/
-│   └── images/                  # (Optional) สำหรับเก็บรูปภาพโลโก้ หรืออื่นๆ
-└── README.md                    # ไฟล์นี้
+    ```
+    /your-restaurant-project/
+    ├── index.html                   (หน้าลูกค้า)
+    ├── admin.html                   (หน้าแอดมิน)
+    ├── kitchen.html                 (หน้าห้องครัว)
+    ├── css/
+    │   └── style.css                (ไฟล์สไตล์หลัก)
+    ├── js/
+    │   ├── main.js                  (JS หน้าลูกค้า)
+    │   ├── admin.js                 (JS หน้าแอดมิน)
+    │   ├── kitchen.js               (JS หน้าห้องครัว)
+    │   ├── shared.js                (JS ฟังก์ชันที่ใช้ร่วมกัน)
+    │   ├── config.js                (เก็บ GAS URL)
+    │   └── site-config.js           (เก็บชื่อร้าน, ข้อความต่างๆ - ถ้ามี)
+    ├── assets/
+    │   └── images/
+    │       └── (รูปภาพโลโก้, รูปเมนูสำรอง ถ้ามี)
+    └── README.md                    (ไฟล์นี้ที่คุณกำลังอ่าน)
+    ```
 
 
 ### 📝 การตั้งค่า Google Sheets และ Google Apps Script
