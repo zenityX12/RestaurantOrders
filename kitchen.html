@@ -1,201 +1,98 @@
-// js/kitchen.js
-
-document.addEventListener('DOMContentLoaded', () => {
-    const kitchenOrdersContainer = document.getElementById('kitchen-orders-container');
-    const kitchenLoadingPlaceholder = document.getElementById('kitchen-loading-placeholder');
-    const refreshBtn = document.getElementById('refresh-kitchen-orders-btn');
-
-    // Interval ID สำหรับการอัปเดตเวลาและสี
-    let elapsedTimeIntervalId = null;
-
-    // ฟังก์ชันคำนวณและอัปเดตเวลา + สีของปุ่ม
-    function updateElapsedTimesAndButtonColors() {
-        document.querySelectorAll('.kitchen-action-btn:not(.item-served-button)').forEach(button => {
-            const orderTimestampStr = button.dataset.timestampForItem; // ใช้ data attribute ใหม่
-            if (orderTimestampStr) {
-                const startTime = new Date(orderTimestampStr).getTime();
-                const now = new Date().getTime();
-                const diffSeconds = Math.max(0, Math.floor((now - startTime) / 1000)); // ไม่ให้ติดลบ
-
-                button.innerHTML = `รอ ${diffSeconds} วิ <i class="bi bi-hourglass-split"></i>`;
-
-                // การเปลี่ยนสีแบบ HSL (Hue, Saturation, Lightness)
-                // Hue: 60 (เหลือง) -> 0 (แดง)
-                // Lightness: 90% (สว่างมาก) -> 50% (เข้มปกติ)
-                // Saturation: 100% (สีสด)
-
-                const maxWaitSeconds = 900; // 15 นาที
-                const progress = Math.min(diffSeconds / maxWaitSeconds, 1); // 0.0 ถึง 1.0
-
-                // Hue: จาก 60 (เหลือง) ลดลงไปหา 0 (แดง)
-                const hue = 60 - (60 * progress);
-                // Lightness: จาก 85% (สว่าง) ลดลงไปหา 55% (เข้มขึ้น)
-                const lightness = 85 - (30 * progress);
-                // Saturation คงที่ที่ 100%
-                const saturation = 100;
-
-                button.style.backgroundColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-                button.style.borderColor = `hsl(${hue}, ${saturation}%, ${Math.max(40, lightness - 10)}%)`; // ขอบเข้มกว่าเล็กน้อย
-                // เปลี่ยนสีข้อความตามความสว่างของพื้นหลังเพื่อให้อ่านง่าย
-                button.style.color = lightness > 65 ? '#333' : '#fff';
-            }
-        });
-    }
-
-    async function loadKitchenOrders(isInitialLoad = true) {
-        if(kitchenLoadingPlaceholder && isInitialLoad) kitchenLoadingPlaceholder.style.display = 'block';
-
-        const orders = await fetchData('getKitchenOrders', {}, 'GET', null, !isInitialLoad);
-        if(kitchenLoadingPlaceholder && isInitialLoad) kitchenLoadingPlaceholder.style.display = 'none';
-
-        if (!orders && !isInitialLoad) {
-            console.warn("Background update for kitchen orders failed or returned no data.");
-            return;
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ห้องครัว - รายการสั่งอาหาร</title> <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* สไตล์เพิ่มเติมเฉพาะหน้าครัว (ถ้ามี) */
+        .navbar {
+            border-bottom: 1px solid #e0e0e0;
         }
-        if (!orders && isInitialLoad) {
-            kitchenOrdersContainer.innerHTML = '<p class="text-center text-danger mt-3 col-12">ไม่สามารถโหลดรายการอาหารได้</p>';
-            return;
+        body {
+            padding-top: 70px; /* สำหรับ fixed navbar */
         }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top bg-light shadow-sm">
+        <div class="container">
+            <a class="navbar-brand mb-0" href="#">
+                <span class="navbar-brand-text" id="config-restaurant-name-nav-kitchen">ระบบจัดการร้านอาหาร (ห้องครัว)</span>
+            </a>
+            </div>
+    </nav>
 
-        if (isInitialLoad || (orders && Array.isArray(orders))) {
-            kitchenOrdersContainer.innerHTML = '';
-        }
+    <div id="loading-spinner" style="display: none;">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">กำลังโหลด...</span>
+        </div>
+    </div>
 
-        if (orders && Array.isArray(orders) && orders.length > 0) {
-            const groupedByOrderId = orders.reduce((acc, item) => {
-                if (!acc[item.OrderID]) {
-                    acc[item.OrderID] = {
-                        orderId: item.OrderID,
-                        tableNumber: item.TableNumber,
-                        timestamp: item.Timestamp,
-                        items: []
-                    };
+    <div id="user-message-container"></div>
+
+    <div class="container pt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h4 mb-0">รายการอาหารที่ต้องเตรียม</h2>
+            <button id="refresh-kitchen-orders-btn" class="btn btn-info">
+                <i class="bi bi-arrow-clockwise btn-icon"></i>รีเฟรชรายการ
+            </button>
+        </div>
+        <div id="kitchen-orders-container" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <p id="kitchen-loading-placeholder" class="text-center text-muted col-12">กำลังโหลดรายการอาหาร...</p>
+            </div>
+    </div>
+
+    <footer class="footer mt-5">
+        <p class="mb-0">&copy; <span id="current-year-kitchen"></span> <span id="config-restaurant-name-footer-kitchen">ชื่อร้าน</span>. <span id="config-footer-text-kitchen">สงวนลิขสิทธิ์</span>.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/site-config.js"></script> <script src="js/shared.js"></script>
+    <script src="js/kitchen.js"></script>
+    <script>
+        // Script สำหรับโหลดค่าจาก SITE_CONFIG มาแสดงผล (ถ้ามี)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.SITE_CONFIG) {
+                const restaurantName = window.SITE_CONFIG.restaurantName || "ร้านอาหาร";
+                const kitchenPageTitleText = window.SITE_CONFIG.kitchenPageTitle || "ห้องครัว - จัดการออเดอร์"; // (Optional) property ใน site-config.js
+                const footerTxt = window.SITE_CONFIG.footerText || "สงวนลิขสิทธิ์";
+
+                // ตั้งค่า Title ของหน้าเว็บ
+                document.title = `${kitchenPageTitleText} | ${restaurantName}`;
+
+                // ตั้งค่าข้อความใน Navbar (ถ้าต้องการให้ดึงจาก config)
+                const navKitchenTitleEl = document.getElementById('config-restaurant-name-nav-kitchen');
+                if (navKitchenTitleEl && window.SITE_CONFIG.kitchenPageTitle) { // ตรวจสอบว่ามี kitchenPageTitle ใน config หรือไม่
+                    navKitchenTitleEl.textContent = kitchenPageTitleText;
+                } else if (navKitchenTitleEl && navKitchenTitleEl.textContent === "ระบบจัดการร้านอาหาร") {
+                    // ถ้าไม่ได้ตั้งค่าใน config และข้อความปัจจุบันเป็นค่า default กว้างๆ ให้เปลี่ยนเป็นค่าเฉพาะหน้านี้
+                    navKitchenTitleEl.textContent = "ระบบจัดการร้านอาหาร (ห้องครัว)";
                 }
-                acc[item.OrderID].items.push(item);
-                return acc;
-            }, {});
 
-            const sortedOrderTickets = Object.values(groupedByOrderId).sort((a, b) => {
-                return new Date(a.timestamp) - new Date(b.timestamp);
-            });
 
-            let newContent = '';
-            sortedOrderTickets.forEach(ticket => {
-                if (ticket.items.length === 0) return;
+                // ตั้งค่าข้อความใน Footer
+                const footerRestaurantNameEl = document.getElementById('config-restaurant-name-footer-kitchen');
+                if (footerRestaurantNameEl) footerRestaurantNameEl.textContent = restaurantName;
 
-                let itemsHtml = '<ul class="list-group list-group-flush">';
-                ticket.items.forEach(item => {
-                    // item.Timestamp ควรจะเป็น ISO string จาก GAS
-                    const itemTimestampForAttr = item.Timestamp || new Date().toISOString();
-
-                    itemsHtml += `
-                        <li class="list-group-item py-2">
-                            <div class="d-flex w-100 justify-content-between align-items-center">
-                                <div class="me-2">
-                                    <h6 class="mb-1">${item.ItemName} <span class="badge bg-secondary">x ${item.Quantity}</span></h6>
-                                    ${item.ItemNote ? `<small class="text-danger fst-italic d-block admin-item-note"><strong>โน้ต:</strong> ${item.ItemNote}</small>` : ''}
-                                    </div>
-                                <button class="btn btn-sm kitchen-action-btn"
-                                        data-orderid="${item.OrderID}"
-                                        data-itemid="${item.ItemID}"
-                                        data-timestamp-for-item="${itemTimestampForAttr}"
-                                        title="คลิกเมื่อเสิร์ฟรายการนี้แล้ว">
-                                    รอ... <i class="bi bi-hourglass-split"></i>
-                                </button>
-                            </div>
-                        </li>`;
-                });
-                itemsHtml += '</ul>';
-
-                newContent += `
-                    <div class="col kitchen-ticket-card" data-orderid="${ticket.orderId}">
-                        <div class="card h-100 shadow-sm kitchen-order-card status-preparing">
-                            <div class="card-header">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <strong class="fs-5">โต๊ะ ${ticket.tableNumber}</strong>
-                                    <small class="text-muted">ID ออเดอร์: ...${ticket.orderId.slice(-5)}</small>
-                                </div>
-                                <small class="text-muted">เวลาสั่ง: ${new Date(ticket.timestamp).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}</small>
-                            </div>
-                            <div class="card-body p-0">
-                                ${itemsHtml}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            if (newContent !== '') {
-                kitchenOrdersContainer.innerHTML = newContent;
-            } else if (orders && orders.length === 0) {
-                 kitchenOrdersContainer.innerHTML = '<p class="text-center text-muted mt-3 col-12">ไม่มีรายการอาหารที่ต้องเตรียมในขณะนี้</p>';
+                const footerTextEl = document.getElementById('config-footer-text-kitchen');
+                if (footerTextEl) footerTextEl.textContent = footerTxt;
+            } else {
+                // ถ้าไม่มี SITE_CONFIG ก็อาจจะตั้งค่า default title สำหรับหน้านี้
+                 const defaultNavTitleEl = document.getElementById('config-restaurant-name-nav-kitchen');
+                 if(defaultNavTitleEl && defaultNavTitleEl.textContent === "ระบบจัดการร้านอาหาร") {
+                    defaultNavTitleEl.textContent = "ระบบจัดการร้านอาหาร (ห้องครัว)";
+                 }
+                 // document.title = "ห้องครัว - รายการสั่งอาหาร"; // title เริ่มต้นถ้าไม่มี config
             }
-
-            document.querySelectorAll('.kitchen-action-btn').forEach(btn => {
-                btn.addEventListener('click', handleMarkAsServed);
-            });
-            updateElapsedTimesAndButtonColors(); // เรียกครั้งแรกเพื่อให้แสดงเวลาและสีทันที
-
-        } else if (orders && orders.error && isInitialLoad) {
-            kitchenOrdersContainer.innerHTML = `<p class="text-danger text-center col-12">เกิดข้อผิดพลาด: ${orders.error}</p>`;
-        } else if (isInitialLoad || (orders && orders.length === 0)) {
-            kitchenOrdersContainer.innerHTML = '<p class="text-center text-muted mt-3 col-12">ไม่มีรายการอาหารที่ต้องเตรียมในขณะนี้</p>';
-        }
-    }
-
-    async function handleMarkAsServed(event) {
-        const button = event.currentTarget;
-        const orderId = button.dataset.orderid;
-        const itemId = button.dataset.itemid;
-
-        // หยุดการอัปเดตสีและเวลาสำหรับปุ่มนี้ทันที
-        button.classList.add('item-served-button'); // เพิ่ม class เพื่อให้ updateElapsedTimesAndButtonColors ข้ามไป
-        button.style.backgroundColor = ''; // ล้าง inline style หรือตั้งเป็นสีเขียวโดยตรง
-        button.style.color = '';
-        button.style.borderColor = '';
-
-
-        const originalButtonText = button.innerHTML; // เก็บไว้เผื่อ error
-        button.disabled = true;
-        button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
-
-        const result = await fetchData('updateOrderStatus', {
-            orderId: orderId,
-            itemId: itemId,
-            newStatus: "Served"
-        }, 'GET', null, false);
-
-        if (result && result.success) {
-            showUserMessage(result.message || `รายการ ${itemId} ถูกทำเครื่องหมายว่า "เสิร์ฟแล้ว"`, "success");
-            button.classList.remove('btn-warning'); // ถ้าเคยมีสี warning
-            button.classList.add('btn-success');    // เพิ่ม class สีเขียว
-            button.innerHTML = '<i class="bi bi-check-circle-fill"></i> เสิร์ฟแล้ว';
-            // ปุ่มยังคง disable อยู่
-
-            // หลังจากอัปเดตสถานะสำเร็จ ให้โหลดข้อมูลครัวใหม่แบบ background
-            // เพื่อให้รายการ/Ticket ที่เสร็จสมบูรณ์แล้วหายไปจากคิว
-            setTimeout(() => {
-                loadKitchenOrders(false);
-            }, 700);
-
-        } else {
-            showUserMessage(`เกิดข้อผิดพลาดในการอัปเดตสถานะ: ${result ? result.message : "ไม่สามารถเชื่อมต่อได้"}`, "danger");
-            button.disabled = false; // คืนค่าปุ่มถ้า error
-            button.innerHTML = originalButtonText;
-            button.classList.remove('item-served-button'); // เอา class ออกเพื่อให้ timer ทำงานต่อถ้า error
-             // เรียก update อีกครั้งเพื่อให้สีกลับมาถูกต้องตามเวลา (ถ้า error)
-            updateElapsedTimesAndButtonColors();
-        }
-    }
-
-    if(refreshBtn) refreshBtn.addEventListener('click', () => loadKitchenOrders(true));
-
-    // เริ่มการอัปเดตเวลาและสีทุกๆ วินาที
-    if (elapsedTimeIntervalId) clearInterval(elapsedTimeIntervalId); // เคลียร์ interval เก่า (ถ้ามี)
-    elapsedTimeIntervalId = setInterval(updateElapsedTimesAndButtonColors, 1000); // อัปเดตทุกวินาที
-
-    loadKitchenOrders(true); // โหลดข้อมูลครัวครั้งแรก
-    setInterval(() => { // Polling ข้อมูลออเดอร์ใหม่จาก Server
-        loadKitchenOrders(false);
-    }, 20000);
-});
+            // ตั้งค่าปีปัจจุบันใน Footer
+            const currentYearElKitchen = document.getElementById('current-year-kitchen');
+            if (currentYearElKitchen) currentYearElKitchen.textContent = new Date().getFullYear();
+        });
+    </script>
+</body>
+</html>
