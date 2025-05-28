@@ -1,22 +1,26 @@
 // js/kitchen-my.js
 
-// ฟังก์ชันนี้จะถูกเรียกจาก kitchen-my.html หลังจาก js/lang/my.js โหลดเสร็จ
-// หรืออาจจะถูกเรียกจาก DOMContentLoaded ใน kitchen-my.html เอง โดยมีการเช็ค window.KITCHEN_LANG_MY
+// ทำให้ฟังก์ชันนี้เป็น Global เพื่อให้ HTML เรียกได้
 function initializeKitchenPage() {
     const kitchenOrdersContainer = document.getElementById('kitchen-orders-container');
     const kitchenLoadingPlaceholder = document.getElementById('kitchen-loading-placeholder');
     const refreshBtn = document.getElementById('refresh-kitchen-orders-btn');
 
+    console.log("Attempting to initialize Burmese Kitchen Page...");
+
     // --- Language and Translation Setup ---
     const LANG_DATA = window.KITCHEN_LANG_MY || {};
     if (Object.keys(LANG_DATA).length === 0) {
-        console.error("KITCHEN_LANG_MY is not loaded or empty. Burmese translations might not be available.");
-        // แสดง Alert ให้ผู้ใช้ทราบว่าโหลดภาษาพม่าไม่สำเร็จ
-        showUserMessage("မင်္ဂလာပါ! ဘာသာပြန်ဖိုင်ကိုဖွင့်ရာတွင် ပြဿနာတစ်ခုရှိနေပါသည်။", "warning");
+        console.error("KITCHEN_LANG_MY is not loaded or is empty. Burmese translations will not be available.");
+        // อาจจะแสดงข้อความ Alert ภาษาอังกฤษหรือไทยที่นี่ ถ้าภาษาพม่าโหลดไม่ได้เลย
+        if (typeof showUserMessage === "function") { // ตรวจสอบว่า showUserMessage พร้อมใช้งาน
+             showUserMessage("Error: Language file for Burmese could not be loaded. Some text may not be translated.", "danger");
+        }
+    } else {
+        console.log("KITCHEN_LANG_MY loaded successfully.");
     }
 
     function _t(key, fallbackText = "") {
-        // ... (ฟังก์ชัน _t() เหมือนเดิม) ...
         if (typeof LANG_DATA[key] === 'string' && arguments.length > 1) {
             let translatedText = LANG_DATA[key];
             for (let i = 1; i < arguments.length; i++) {
@@ -28,6 +32,7 @@ function initializeKitchenPage() {
     }
 
     // --- Update Static UI Text on initialization ---
+    // (ส่วนนี้จะถูกเรียกจาก kitchen-my.html แล้ว หลังจากที่ KITCHEN_LANG_MY ควรจะพร้อม)
     document.title = _t('pageTitle', 'မီးဖိုချောင် - အော်ဒါစာရင်း');
     const kitchenNavTitleEl = document.getElementById('kitchen-nav-title');
     if (kitchenNavTitleEl) kitchenNavTitleEl.textContent = _t('navTitle', 'စားသောက်ဆိုင် စီမံခန့်ခွဲမှု (မီးဖိုချောင်)');
@@ -37,34 +42,33 @@ function initializeKitchenPage() {
 
     const kitchenRefreshBtnTextEl = document.getElementById('kitchen-refresh-button-text');
      if (kitchenRefreshBtnTextEl) {
+        // Clear existing text node before adding new one
         const parentButton = kitchenRefreshBtnTextEl.parentElement;
-        // Clear existing text nodes except the icon
         Array.from(parentButton.childNodes).forEach(node => {
             if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
                 node.remove();
             }
         });
-        const textNode = document.createTextNode(" " + _t('refreshButton', 'စာရင်းပြန်စစ်မည်')); // Add space after icon
+        const textNode = document.createTextNode(" " + _t('refreshButton', 'စာရင်းပြန်စစ်မည်'));
         parentButton.appendChild(textNode);
     } else if (refreshBtn) {
         refreshBtn.innerHTML = `<i class="bi bi-arrow-clockwise btn-icon"></i>${_t('refreshButton', 'စာရင်းပြန်စစ်မည်')}`;
     }
 
-
     if (kitchenLoadingPlaceholder) kitchenLoadingPlaceholder.textContent = _t('actionSpinnerLoading', 'ဖွင့်နေသည်...');
+
 
     // --- Timer and Color Logic ---
     let elapsedTimeIntervalId = null;
 
     function updateElapsedTimesAndButtonColors() {
-        // ... (โค้ด updateElapsedTimesAndButtonColors เหมือนเดิม) ...
         document.querySelectorAll('.kitchen-action-btn:not(.item-served-button)').forEach(button => {
             const orderTimestampStr = button.dataset.timestampForItem;
             if (orderTimestampStr) {
                 const startTime = new Date(orderTimestampStr).getTime();
                 const now = new Date().getTime();
                 const diffSeconds = Math.max(0, Math.floor((now - startTime) / 1000));
-                button.innerHTML = `${_t('statusWaitingText', 'စောင့်ပါ')} ${diffSeconds} ${_t('elapsedTimeSecondsUnit', 'စက္ကန့်')} <i class="bi bi-hourglass-split"></i>`;
+                button.innerHTML = `${_t('statusWaitingText', 'စောင့်ပါ')} ${diffSeconds} ${_t('elapsedTimeSecondsUnit', 'စက္ကန့်')} <i class="bi bi-hourglass-split"></i>`; // เพิ่ม key elapsedTimeSecondsUnit
                 const maxWaitSeconds = 900;
                 const progress = Math.min(diffSeconds / maxWaitSeconds, 1);
                 const hue = 60 - (60 * progress);
@@ -79,7 +83,6 @@ function initializeKitchenPage() {
 
     // --- Core Order Loading and Rendering Logic ---
     async function loadKitchenOrders(isInitialLoad = true) {
-        // ... (โค้ด loadKitchenOrders เหมือนเดิม โดยใช้ _t() สำหรับข้อความ) ...
         if(kitchenLoadingPlaceholder && isInitialLoad) {
             kitchenLoadingPlaceholder.textContent = _t('actionSpinnerLoading', 'ဖွင့်နေသည်...');
             kitchenLoadingPlaceholder.style.display = 'block';
@@ -189,7 +192,7 @@ function initializeKitchenPage() {
         const itemName = button.dataset.itemname || itemId;
 
         button.classList.add('item-served-button');
-        button.style.backgroundColor = '';
+        button.style.backgroundColor = ''; // Clear inline style to let CSS class take over
         button.style.color = '';
         button.style.borderColor = '';
 
@@ -205,9 +208,13 @@ function initializeKitchenPage() {
 
         if (result && result.success) {
             showUserMessage(_t('confirmServedMessage', `รายการ ${itemName} ถูกทำเครื่องหมายว่า "เสิร์ฟแล้ว"`, itemName), "success");
-            button.classList.remove('btn-warning');
+            button.classList.remove('btn-warning'); // Ensure this is removed if it was a class
             button.classList.add('btn-success');
             button.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${_t('statusServedText', 'ပို့ပြီးပြီ')}`;
+            // Button remains disabled
+
+            // No need to update elapsed time text here as the button is now "Served"
+            // The updateElapsedTimesAndButtonColors function will skip it.
 
             setTimeout(() => {
                 loadKitchenOrders(false);
@@ -217,7 +224,7 @@ function initializeKitchenPage() {
             showUserMessage(`${_t('errorUpdateStatus', 'เกิดข้อผิดพลาดในการอัปเดตสถานะ')}: ${result ? (result.message || result.error || '') : _t('errorConnection', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้')}`, "danger");
             button.disabled = false;
             button.innerHTML = originalButtonText;
-            button.classList.remove('item-served-button');
+            button.classList.remove('item-served-button'); // Allow timer to restart if error
             updateElapsedTimesAndButtonColors();
         }
     }
@@ -240,7 +247,6 @@ function initializeKitchenPage() {
     }, 20000);
 }
 
-// การเรียก initializeKitchenPage จะถูกควบคุมจาก script ใน kitchen-my.html
-// หลังจากที่ js/lang/my.js โหลดเสร็จ
-// ดังนั้น ไม่ต้องเรียก initializeKitchenPage() โดยตรงจากที่นี่อีก
-// document.addEventListener('DOMContentLoaded', initializeKitchenPage); // เอาออก หรือปรับให้เช็คการโหลดไฟล์ภาษา
+// This global function will be called by the script in kitchen-my.html
+// after js/lang/my.js is loaded.
+// We don't need DOMContentLoaded here because kitchen-my.html's script will call this.
