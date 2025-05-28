@@ -7,8 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadAdminOrders(isInitialLoad = true) {
         if(adminLoadingPlaceholder && isInitialLoad) adminLoadingPlaceholder.style.display = 'block';
-        // ไม่ clear accordion ทันทีถ้าเป็น background เพื่อลดการกระพริบ
-        // จะ clear เมื่อมีข้อมูลใหม่จริงๆ หรือเป็น initial load
 
         const tablesData = await fetchData('getAllActiveOrders', {}, 'GET', null, !isInitialLoad);
         if(adminLoadingPlaceholder && isInitialLoad) adminLoadingPlaceholder.style.display = 'none';
@@ -17,15 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn("Background update for admin orders failed or returned no data.");
             return;
         }
-        if (!tablesData && isInitialLoad) { // Error on initial load
+        if (!tablesData && isInitialLoad) {
             adminOrdersAccordion.innerHTML = '<p class="text-center text-danger mt-3">ไม่สามารถโหลดข้อมูลออเดอร์ได้</p>';
             return;
         }
-        // Clear content only if we are about to render new data or it's an initial load
+
         if (isInitialLoad || (tablesData && Array.isArray(tablesData))) {
             adminOrdersAccordion.innerHTML = '';
         }
-
 
         if (tablesData && Array.isArray(tablesData) && tablesData.length > 0) {
             tablesData.sort((a, b) => parseInt(String(a.table).replace(/\D/g,'') || 0) - parseInt(String(b.table).replace(/\D/g,'') || 0));
@@ -33,8 +30,16 @@ document.addEventListener('DOMContentLoaded', () => {
             let newContent = '';
             tablesData.forEach((tableInfo, index) => {
                 const tableNumber = tableInfo.table;
-                const orders = tableInfo.orders;
-                const totalAmount = tableInfo.totalAmount;
+                const orders = tableInfo.orders; // orders is an array of item objects
+                let currentTableTotalAmount = 0; // Recalculate total for display, excluding cancelled items
+                
+                orders.forEach(item => {
+                    if (item.Status !== "Cancelled") {
+                        currentTableTotalAmount += parseFloat(item.Subtotal || 0);
+                    }
+                });
+
+
                 const uniqueOrderIds = Array.from(new Set(orders.map(o => o.OrderID))).join(', ') || 'N/A';
 
                 const accordionItemId = `table-collapse-${tableNumber.toString().replace(/[^a-zA-Z0-9]/g, '')}`;
@@ -43,13 +48,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 let itemsHtml = '<ul class="list-group list-group-flush">';
                 if (orders && orders.length > 0) {
                     orders.forEach(item => {
+                        const canCancel = item.Status !== "Cancelled" && item.Status !== "Billed" && item.Status !== "Paid";
+                        const itemStatusDisplay = item.Status === "Cancelled" ? `<span class="text-danger fw-bold">${item.Status}</span>` : item.Status;
+                        
+                        // Ensure item.Timestamp is valid before using in data-attribute
+                        const itemTimestampForAttr = (item.Timestamp instanceof Date) ? item.Timestamp.toISOString() : item.Timestamp;
+
                         itemsHtml += `
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <li class="list-group-item d-flex justify-content-between align-items-center ${item.Status === "Cancelled" ? 'list-group-item-light text-muted' : ''}">
                                 <div>
                                     ${item.ItemName} x ${item.Quantity}
-                                    <br><small class="text-muted">สถานะ: ${item.Status} (ID: ${item.OrderID})</small>
+                                    ${item.ItemNote ? `<small class="d-block fst-italic text-primary"><strong>โน้ต:</strong> ${item.ItemNote}</small>` : ''}
+                                    <br><small>สถานะ: ${itemStatusDisplay} (ID: ${item.OrderID})</small>
+                                    ${item.Status === "Cancelled" ? '' : `<br><small class="text-muted fst-italic">สั่งเมื่อ: ${new Date(item.Timestamp).toLocaleTimeString('th-TH')}</small>`}
                                 </div>
-                                <span class="badge bg-light text-dark">${parseFloat(item.Subtotal || 0).toFixed(2)} บ.</span>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge ${item.Status === "Cancelled" ? 'bg-secondary' : 'bg-light text-dark'} me-2">${parseFloat(item.Subtotal || 0).toFixed(2)} บ.</span>
+                                    ${canCancel ?
+                                        `<button class="btn btn-sm btn-outline-danger cancel-order-item-btn"
+                                                 title="ยกเลิกรายการนี้"
+                                                 data-orderid="${item.OrderID}"
+                                                 data-itemid="${item.ItemID}"
+                                                 data-timestamp="${itemTimestampForAttr}"
+                                                 data-itemname="${item.ItemName}">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                        </button>` : ''
+                                    }
+                                </div>
                             </li>`;
                     });
                 } else {
@@ -57,42 +82,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 itemsHtml += '</ul>';
 
-                // Determine if this accordion item should be shown expanded
-                // For initial load, first item is expanded. For background updates, try to preserve state (more complex)
-                // Simple approach: only first item on initial load is expanded.
                 const isExpanded = isInitialLoad && index === 0;
                 const buttonCollapsedClass = isExpanded ? '' : 'collapsed';
                 const divShowClass = isExpanded ? 'show' : '';
-
 
                 newContent += `
                     <div class="accordion-item admin-table-card">
                         <h2 class="accordion-header" id="${accordionHeaderId}">
                             <button class="accordion-button ${buttonCollapsedClass}" type="button" data-bs-toggle="collapse" data-bs-target="#${accordionItemId}" aria-expanded="${isExpanded}" aria-controls="${accordionItemId}">
                                 <strong>โต๊ะ ${tableNumber}</strong> &nbsp;-&nbsp;
-                                <span class="badge bg-success me-2">ยอดรวม: ${totalAmount.toFixed(2)} บาท</span>
+                                <span class="badge bg-success me-2">ยอดรวม (ไม่รวมยกเลิก): ${currentTableTotalAmount.toFixed(2)} บาท</span>
                                 <small class="text-muted">(Order IDs: ${uniqueOrderIds})</small>
                             </button>
                         </h2>
                         <div id="${accordionItemId}" class="accordion-collapse collapse ${divShowClass}" aria-labelledby="${accordionHeaderId}" data-bs-parent="#admin-orders-accordion">
                             <div class="accordion-body">
                                 ${itemsHtml}
-                                <button class="btn btn-primary mt-3 w-100 check-bill-btn" data-table="${tableNumber}" data-amount="${totalAmount.toFixed(2)}">
-                                    <i class="bi bi-cash-coin btn-icon"></i> เช็คบิลโต๊ะ ${tableNumber} (ยอด: ${totalAmount.toFixed(2)} บาท)
-                                </button>
+                                <div class="mt-3 d-flex flex-wrap justify-content-between gap-2">
+                                    <button class="btn btn-primary check-bill-btn flex-grow-1" data-table="${tableNumber}" data-amount="${currentTableTotalAmount.toFixed(2)}">
+                                        <i class="bi bi-cash-coin btn-icon"></i> เช็คบิลโต๊ะ ${tableNumber}
+                                    </button>
+                                    <a href="index.html?table=${tableNumber}" target="_blank" class="btn btn-outline-info open-customer-view-btn flex-grow-1" title="เปิดหน้าสั่งอาหารสำหรับโต๊ะ ${tableNumber}">
+                                        <i class="bi bi-display"></i> ดู/สั่งเพิ่ม
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
             });
-             // Only update DOM if new content is different to avoid unnecessary re-renders/flicker
-            if (adminOrdersAccordion.innerHTML !== newContent) {
-                adminOrdersAccordion.innerHTML = newContent;
-            }
 
+            if (adminOrdersAccordion.innerHTML !== newContent && newContent !== '') {
+                adminOrdersAccordion.innerHTML = newContent;
+            } else if (newContent === '' && tablesData && tablesData.length === 0) {
+                adminOrdersAccordion.innerHTML = '<p class="text-center text-muted mt-3">ยังไม่มีออเดอร์ที่ยังไม่ได้เช็คบิล</p>';
+            }
 
             document.querySelectorAll('.check-bill-btn').forEach(btn => {
                 btn.addEventListener('click', handleCheckBill);
+            });
+            document.querySelectorAll('.cancel-order-item-btn').forEach(btn => {
+                btn.addEventListener('click', handleCancelOrderItem);
             });
 
         } else if (tablesData && tablesData.error && isInitialLoad) {
@@ -105,26 +135,53 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleCheckBill(event) {
         const button = event.currentTarget;
         const tableNum = button.dataset.table;
-        const amount = button.dataset.amount;
+        const amount = button.dataset.amount; // ยอดนี้คือยอดที่คำนวณใหม่ ไม่รวมรายการยกเลิก
 
-        if (!confirm(`คุณต้องการเช็คบิลโต๊ะ ${tableNum} ยอดรวม ${amount} บาท ใช่หรือไม่?`)) {
+        if (!confirm(`คุณต้องการเช็คบิลโต๊ะ ${tableNum} ยอดรวม ${amount} บาท ใช่หรือไม่? \n(รายการที่ถูก "Cancelled" จะไม่ถูกรวมในยอดนี้)`)) {
             return;
         }
-
         const originalButtonText = button.innerHTML;
         button.disabled = true;
         button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังเช็คบิล...`;
-
-        // Check bill is a user action, show spinner
         const result = await fetchData('calculateBill', { table: tableNum }, 'GET', null, false);
-
         if (result && result.success) {
-            showUserMessage(result.message || `เช็คบิลโต๊ะ ${tableNum} สำเร็จ!`, "success");
-            loadAdminOrders(true); // Reload admin orders with spinner after successful billing
+            showUserMessage(result.message || `เช็คบิลโต๊ะ ${tableNum} สำเร็จ! ยอดที่เรียกเก็บ ${result.totalAmount.toFixed(2)} บาท`, "success");
+            loadAdminOrders(true);
         } else {
             showUserMessage("เกิดข้อผิดพลาดในการเช็คบิล: " + (result ? result.message : "ไม่สามารถเชื่อมต่อได้"), "danger");
             button.disabled = false;
             button.innerHTML = originalButtonText;
+        }
+    }
+
+    async function handleCancelOrderItem(event) {
+        const button = event.currentTarget;
+        const orderId = button.dataset.orderid;
+        const itemId = button.dataset.itemid;
+        const itemTimestamp = button.dataset.timestamp;
+        const itemName = button.dataset.itemname;
+
+        if (!confirm(`คุณต้องการยกเลิกรายการ "${itemName}" (เวลาสั่ง: ${new Date(itemTimestamp).toLocaleTimeString('th-TH')}) ในออเดอร์ ${orderId} ใช่หรือไม่?`)) {
+            return;
+        }
+
+        const originalButtonContent = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
+
+        const result = await fetchData('cancelOrderItem', {
+            orderId: orderId,
+            itemId: itemId,
+            itemTimestamp: itemTimestamp
+        }, 'GET', null, false);
+
+        if (result && result.success) {
+            showUserMessage(result.message || `ยกเลิกรายการ ${itemName} สำเร็จ`, "success");
+            loadAdminOrders(false);
+        } else {
+            showUserMessage(`เกิดข้อผิดพลาดในการยกเลิกรายการ: ${result ? result.message : "ไม่สามารถเชื่อมต่อได้"}`, "danger");
+            button.disabled = false;
+            button.innerHTML = originalButtonContent;
         }
     }
 
@@ -133,5 +190,5 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAdminOrders(true);
     setInterval(() => {
         loadAdminOrders(false);
-    }, 30000); // อัปเดตหน้าแอดมินทุก 30 วินาที
+    }, 30000);
 });
