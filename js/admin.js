@@ -81,13 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const buttonCollapsedClass = isExpanded ? '' : 'collapsed';
                 const divShowClass = isExpanded ? 'show' : '';
 
+                // ***** แก้ไขการแสดงผลใน Accordion Button Header *****
                 newContent += `
                     <div class="accordion-item admin-table-card">
                         <h2 class="accordion-header" id="${accordionHeaderId}">
                             <button class="accordion-button ${buttonCollapsedClass}" type="button" data-bs-toggle="collapse" data-bs-target="#${accordionItemId}" aria-expanded="${isExpanded}" aria-controls="${accordionItemId}">
-                                <strong>โต๊ะ ${tableNumber}</strong> &nbsp;-&nbsp;
-                                <span class="badge bg-success me-2">ยอดรวม: ${currentTableTotalAmount.toFixed(2)} บาท</span>
-                                <small class="text-muted">(Order IDs: ${uniqueOrderIds})</small>
+                                <span class="me-2"><strong>โต๊ะ ${tableNumber}</strong></span>
+                                <span class="badge bg-success me-auto">ยอดรวม: ${currentTableTotalAmount.toFixed(2)} บาท</span>
+                                <small class="text-muted order-ids-display">(IDs: ${uniqueOrderIds})</small>
                             </button>
                         </h2>
                         <div id="${accordionItemId}" class="accordion-collapse collapse ${divShowClass}" aria-labelledby="${accordionHeaderId}" data-bs-parent="#admin-orders-accordion">
@@ -106,6 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             });
+            // ***** สิ้นสุดการแก้ไข *****
+
 
             if (adminOrdersAccordion.innerHTML !== newContent && newContent !== '') {
                 adminOrdersAccordion.innerHTML = newContent;
