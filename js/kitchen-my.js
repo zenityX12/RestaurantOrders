@@ -1,23 +1,25 @@
 // js/kitchen-my.js
 
-// ทำให้ฟังก์ชันนี้เป็น Global เพื่อให้ HTML เรียกได้
+// ฟังก์ชันนี้จะถูกเรียกจาก kitchen-my.html หลังจาก js/lang/my.js และ js/menu-translations-my.js โหลดเสร็จ
 function initializeKitchenPage() {
     const kitchenOrdersContainer = document.getElementById('kitchen-orders-container');
     const kitchenLoadingPlaceholder = document.getElementById('kitchen-loading-placeholder');
     const refreshBtn = document.getElementById('refresh-kitchen-orders-btn');
 
-    console.log("Attempting to initialize Burmese Kitchen Page...");
+    console.log("initializeKitchenPage() called.");
 
     // --- Language and Translation Setup ---
-    const LANG_DATA = window.KITCHEN_LANG_MY || {};
+    const LANG_DATA = window.KITCHEN_LANG_MY || {}; // ควรจะพร้อมใช้งานแล้ว
+    const MENU_TRANSLATIONS = window.MENU_TRANSLATIONS_MY || {}; // ควรจะพร้อมใช้งานแล้ว
+
     if (Object.keys(LANG_DATA).length === 0) {
-        console.error("KITCHEN_LANG_MY is not loaded or is empty. Burmese translations will not be available.");
-        // อาจจะแสดงข้อความ Alert ภาษาอังกฤษหรือไทยที่นี่ ถ้าภาษาพม่าโหลดไม่ได้เลย
-        if (typeof showUserMessage === "function") { // ตรวจสอบว่า showUserMessage พร้อมใช้งาน
-             showUserMessage("Error: Language file for Burmese could not be loaded. Some text may not be translated.", "danger");
+        console.error("KITCHEN_LANG_MY is not loaded or empty. Burmese UI text will use fallbacks.");
+        if (typeof showUserMessage === "function") {
+             showUserMessage("Error: Language file for UI could not be loaded. Using fallback text.", "warning");
         }
-    } else {
-        console.log("KITCHEN_LANG_MY loaded successfully.");
+    }
+    if (Object.keys(MENU_TRANSLATIONS).length === 0) {
+        console.warn("MENU_TRANSLATIONS_MY is not loaded or empty. Menu names will be in Thai (fallback).");
     }
 
     function _t(key, fallbackText = "") {
@@ -31,27 +33,26 @@ function initializeKitchenPage() {
         return LANG_DATA[key] || fallbackText || key;
     }
 
-    // --- Update Static UI Text on initialization ---
-    // (ส่วนนี้จะถูกเรียกจาก kitchen-my.html แล้ว หลังจากที่ KITCHEN_LANG_MY ควรจะพร้อม)
-    document.title = _t('pageTitle', 'မီးဖိုချောင် - အော်ဒါစာရင်း');
-    const kitchenNavTitleEl = document.getElementById('kitchen-nav-title');
-    if (kitchenNavTitleEl) kitchenNavTitleEl.textContent = _t('navTitle', 'စားသောက်ဆိုင် စီမံခန့်ခွဲမှု (မီးဖိုချောင်)');
-
+    // --- Update Static UI Text on initialization (ส่วนนี้อาจจะซ้ำกับใน HTML บ้าง แต่เพื่อให้แน่ใจ) ---
     const kitchenOrdersHeaderEl = document.getElementById('kitchen-orders-header');
     if (kitchenOrdersHeaderEl) kitchenOrdersHeaderEl.textContent = _t('ordersToPrepareHeader', 'ပြင်ဆင်ရန် အစားအစာများ');
 
     const kitchenRefreshBtnTextEl = document.getElementById('kitchen-refresh-button-text');
      if (kitchenRefreshBtnTextEl) {
-        // Clear existing text node before adding new one
         const parentButton = kitchenRefreshBtnTextEl.parentElement;
+        // Clear existing text nodes except the icon
         Array.from(parentButton.childNodes).forEach(node => {
             if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
                 node.remove();
             }
         });
         const textNode = document.createTextNode(" " + _t('refreshButton', 'စာရင်းပြန်စစ်မည်'));
-        parentButton.appendChild(textNode);
-    } else if (refreshBtn) {
+        if(parentButton.querySelector('.btn-icon')){ // ถ้ามี icon อยู่แล้ว ให้ append text
+             parentButton.appendChild(textNode);
+        } else { // ถ้าไม่มี icon (ไม่ควรเกิด) ก็ใส่ text ตรงๆ
+             parentButton.innerHTML = `<i class="bi bi-arrow-clockwise btn-icon"></i>` + _t('refreshButton', 'စာရင်းပြန်စစ်မည်');
+        }
+    } else if (refreshBtn) { // Fallback เผื่อไม่มี span แยก
         refreshBtn.innerHTML = `<i class="bi bi-arrow-clockwise btn-icon"></i>${_t('refreshButton', 'စာရင်းပြန်စစ်မည်')}`;
     }
 
@@ -68,12 +69,15 @@ function initializeKitchenPage() {
                 const startTime = new Date(orderTimestampStr).getTime();
                 const now = new Date().getTime();
                 const diffSeconds = Math.max(0, Math.floor((now - startTime) / 1000));
-                button.innerHTML = `${_t('statusWaitingText', 'စောင့်ပါ')} ${diffSeconds} ${_t('elapsedTimeSecondsUnit', 'စက္ကန့်')} <i class="bi bi-hourglass-split"></i>`; // เพิ่ม key elapsedTimeSecondsUnit
+
+                button.innerHTML = `${_t('statusWaitingText', 'စောင့်ပါ')} ${diffSeconds} ${_t('elapsedTimeSecondsUnit', 'စက္ကန့်')} <i class="bi bi-hourglass-split"></i>`;
+
                 const maxWaitSeconds = 900;
                 const progress = Math.min(diffSeconds / maxWaitSeconds, 1);
                 const hue = 60 - (60 * progress);
                 const lightness = 85 - (30 * progress);
                 const saturation = 100;
+
                 button.style.backgroundColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
                 button.style.borderColor = `hsl(${hue}, ${saturation}%, ${Math.max(40, lightness - 10)}%)`;
                 button.style.color = lightness > 65 ? '#333' : '#fff';
@@ -100,9 +104,9 @@ function initializeKitchenPage() {
             return;
         }
 
-        if (isInitialLoad || (orders && Array.isArray(orders))) {
-            kitchenOrdersContainer.innerHTML = '';
-        }
+        // เคลียร์ container ก่อน render ใหม่
+        kitchenOrdersContainer.innerHTML = '';
+
 
         if (orders && Array.isArray(orders) && orders.length > 0) {
             const groupedByOrderId = orders.reduce((acc, item) => {
@@ -122,24 +126,28 @@ function initializeKitchenPage() {
                 return new Date(a.timestamp) - new Date(b.timestamp);
             });
 
-            let newContent = '';
+            let contentToRender = ''; // สร้าง HTML string แล้วค่อย innerHTML ทีเดียว
             sortedOrderTickets.forEach(ticket => {
                 if (ticket.items.length === 0) return;
 
                 let itemsHtml = '<ul class="list-group list-group-flush">';
                 ticket.items.forEach(item => {
                     const itemTimestampForAttr = item.Timestamp || new Date().toISOString();
+                    const itemNameForDisplay = MENU_TRANSLATIONS[item.ItemID] || item.ItemName; // ใช้คำแปลเมนู
+                    const itemDescriptionForDisplay = ""; // (ถ้ามี Description และไฟล์แปล)
+
                     itemsHtml += `
                         <li class="list-group-item py-2">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div class="me-2">
-                                    <h6 class="mb-1">${item.ItemName} <span class="badge bg-secondary">x ${item.Quantity}</span></h6>
+                                    <h6 class="mb-1">${itemNameForDisplay} <span class="badge bg-secondary">x ${item.Quantity}</span></h6>
                                     ${item.ItemNote ? `<small class="text-danger fst-italic d-block admin-item-note"><strong>${_t('noteLabel', 'မှတ်ချက်')}:</strong> ${item.ItemNote}</small>` : ''}
+                                    ${itemDescriptionForDisplay ? `<small class="text-muted d-block">${itemDescriptionForDisplay}</small>`:''}
                                 </div>
                                 <button class="btn btn-sm kitchen-action-btn"
                                         data-orderid="${item.OrderID}"
                                         data-itemid="${item.ItemID}"
-                                        data-itemname="${item.ItemName}"
+                                        data-itemname="${itemNameForDisplay}"
                                         data-timestamp-for-item="${itemTimestampForAttr}"
                                         title="${_t('buttonTitleMarkServed', 'ဤပစ္စည်းကို ကျွေးပြီးပါက နှိပ်ပါ')}">
                                     ${_t('statusWaitingText', 'စောင့်ပါ')}... <i class="bi bi-hourglass-split"></i>
@@ -149,7 +157,7 @@ function initializeKitchenPage() {
                 });
                 itemsHtml += '</ul>';
 
-                newContent += `
+                contentToRender += `
                     <div class="col kitchen-ticket-card" data-orderid="${ticket.orderId}">
                         <div class="card h-100 shadow-sm kitchen-order-card status-preparing">
                             <div class="card-header">
@@ -167,9 +175,9 @@ function initializeKitchenPage() {
                 `;
             });
 
-            if (newContent !== '') {
-                kitchenOrdersContainer.innerHTML = newContent;
-            } else if (orders && orders.length === 0) {
+            if (contentToRender !== '') {
+                kitchenOrdersContainer.innerHTML = contentToRender;
+            } else { // กรณีที่ orders มีข้อมูล แต่หลังจากการจัดกลุ่มแล้วไม่มีอะไรจะ render (ไม่ควรเกิดถ้า logic ถูก)
                  kitchenOrdersContainer.innerHTML = `<p class="text-center text-muted mt-3 col-12">${_t('noOrdersMessage', 'လောလောဆယ် ပြင်ဆင်ရန် အစားအစာ မရှိပါ')}</p>`;
             }
 
@@ -192,7 +200,7 @@ function initializeKitchenPage() {
         const itemName = button.dataset.itemname || itemId;
 
         button.classList.add('item-served-button');
-        button.style.backgroundColor = ''; // Clear inline style to let CSS class take over
+        button.style.backgroundColor = '';
         button.style.color = '';
         button.style.borderColor = '';
 
@@ -208,13 +216,9 @@ function initializeKitchenPage() {
 
         if (result && result.success) {
             showUserMessage(_t('confirmServedMessage', `รายการ ${itemName} ถูกทำเครื่องหมายว่า "เสิร์ฟแล้ว"`, itemName), "success");
-            button.classList.remove('btn-warning'); // Ensure this is removed if it was a class
+            button.classList.remove('btn-warning');
             button.classList.add('btn-success');
             button.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${_t('statusServedText', 'ပို့ပြီးပြီ')}`;
-            // Button remains disabled
-
-            // No need to update elapsed time text here as the button is now "Served"
-            // The updateElapsedTimesAndButtonColors function will skip it.
 
             setTimeout(() => {
                 loadKitchenOrders(false);
@@ -224,7 +228,7 @@ function initializeKitchenPage() {
             showUserMessage(`${_t('errorUpdateStatus', 'เกิดข้อผิดพลาดในการอัปเดตสถานะ')}: ${result ? (result.message || result.error || '') : _t('errorConnection', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้')}`, "danger");
             button.disabled = false;
             button.innerHTML = originalButtonText;
-            button.classList.remove('item-served-button'); // Allow timer to restart if error
+            button.classList.remove('item-served-button');
             updateElapsedTimesAndButtonColors();
         }
     }
@@ -234,19 +238,19 @@ function initializeKitchenPage() {
     }
 
     // --- Start Page Execution ---
+    console.log("Kitchen page script (kitchen-my.js) is now running initializeKitchenPage.");
+
     if (elapsedTimeIntervalId) clearInterval(elapsedTimeIntervalId);
     elapsedTimeIntervalId = setInterval(updateElapsedTimesAndButtonColors, 1000);
 
-    loadKitchenOrders(true);
+    loadKitchenOrders(true); // เรียกโหลดออเดอร์ครั้งแรก
 
     if (window.kitchenOrderPollingIntervalId) {
         clearInterval(window.kitchenOrderPollingIntervalId);
     }
     window.kitchenOrderPollingIntervalId = setInterval(() => {
         loadKitchenOrders(false);
-    }, 20000);
+    }, 20000); // อัปเดตหน้าห้องครัวทุก 20 วินาที
 }
 
-// This global function will be called by the script in kitchen-my.html
-// after js/lang/my.js is loaded.
-// We don't need DOMContentLoaded here because kitchen-my.html's script will call this.
+// initializeKitchenPage(); // ถูกเรียกจาก kitchen-my.html แล้ว
