@@ -5,30 +5,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const kitchenLoadingPlaceholder = document.getElementById('kitchen-loading-placeholder');
     const refreshBtn = document.getElementById('refresh-kitchen-orders-btn');
 
-    function updateElapsedTimes() {
-        document.querySelectorAll('.order-item-elapsed-time').forEach(el => {
-            const orderTimestampStr = el.dataset.timestamp;
-            const associatedButton = el.closest('li').querySelector('.kitchen-action-btn');
-            if (orderTimestampStr && associatedButton && !associatedButton.classList.contains('btn-success')) {
+    // Interval ID สำหรับการอัปเดตเวลาและสี
+    let elapsedTimeIntervalId = null;
+
+    // ฟังก์ชันคำนวณและอัปเดตเวลา + สีของปุ่ม
+    function updateElapsedTimesAndButtonColors() {
+        document.querySelectorAll('.kitchen-action-btn:not(.item-served-button)').forEach(button => {
+            const orderTimestampStr = button.dataset.timestampForItem; // ใช้ data attribute ใหม่
+            if (orderTimestampStr) {
                 const startTime = new Date(orderTimestampStr).getTime();
                 const now = new Date().getTime();
-                const diffMs = now - startTime;
-                const minutes = Math.floor(diffMs / 60000);
+                const diffSeconds = Math.max(0, Math.floor((now - startTime) / 1000)); // ไม่ให้ติดลบ
 
-                if (minutes < 1) {
-                    el.textContent = "เมื่อสักครู่";
-                } else {
-                    el.textContent = `${minutes} นาทีที่แล้ว`;
-                }
-                 el.classList.remove('text-success', 'fst-italic');
-            } else if (associatedButton && associatedButton.classList.contains('btn-success')) {
-                el.textContent = "(เสิร์ฟแล้ว)";
-                el.classList.add('text-success', 'fst-italic');
+                button.innerHTML = `รอ ${diffSeconds} วิ <i class="bi bi-hourglass-split"></i>`;
+
+                // การเปลี่ยนสีแบบ HSL (Hue, Saturation, Lightness)
+                // Hue: 60 (เหลือง) -> 0 (แดง)
+                // Lightness: 90% (สว่างมาก) -> 50% (เข้มปกติ)
+                // Saturation: 100% (สีสด)
+
+                const maxWaitSeconds = 900; // 15 นาที
+                const progress = Math.min(diffSeconds / maxWaitSeconds, 1); // 0.0 ถึง 1.0
+
+                // Hue: จาก 60 (เหลือง) ลดลงไปหา 0 (แดง)
+                const hue = 60 - (60 * progress);
+                // Lightness: จาก 85% (สว่าง) ลดลงไปหา 55% (เข้มขึ้น)
+                const lightness = 85 - (30 * progress);
+                // Saturation คงที่ที่ 100%
+                const saturation = 100;
+
+                button.style.backgroundColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+                button.style.borderColor = `hsl(${hue}, ${saturation}%, ${Math.max(40, lightness - 10)}%)`; // ขอบเข้มกว่าเล็กน้อย
+                // เปลี่ยนสีข้อความตามความสว่างของพื้นหลังเพื่อให้อ่านง่าย
+                button.style.color = lightness > 65 ? '#333' : '#fff';
             }
         });
     }
-    const elapsedTimeInterval = setInterval(updateElapsedTimes, 60000);
-
 
     async function loadKitchenOrders(isInitialLoad = true) {
         if(kitchenLoadingPlaceholder && isInitialLoad) kitchenLoadingPlaceholder.style.display = 'block';
@@ -48,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isInitialLoad || (orders && Array.isArray(orders))) {
             kitchenOrdersContainer.innerHTML = '';
         }
-
 
         if (orders && Array.isArray(orders) && orders.length > 0) {
             const groupedByOrderId = orders.reduce((acc, item) => {
@@ -74,19 +85,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let itemsHtml = '<ul class="list-group list-group-flush">';
                 ticket.items.forEach(item => {
+                    // item.Timestamp ควรจะเป็น ISO string จาก GAS
+                    const itemTimestampForAttr = item.Timestamp || new Date().toISOString();
+
                     itemsHtml += `
                         <li class="list-group-item py-2">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div class="me-2">
                                     <h6 class="mb-1">${item.ItemName} <span class="badge bg-secondary">x ${item.Quantity}</span></h6>
                                     ${item.ItemNote ? `<small class="text-danger fst-italic d-block admin-item-note"><strong>โน้ต:</strong> ${item.ItemNote}</small>` : ''}
-                                    <small class="order-item-elapsed-time text-muted d-block" data-timestamp="${item.Timestamp}">กำลังคำนวณ...</small>
-                                </div>
-                                <button class="btn btn-sm btn-warning kitchen-action-btn mark-served-btn"
+                                    </div>
+                                <button class="btn btn-sm kitchen-action-btn"
                                         data-orderid="${item.OrderID}"
                                         data-itemid="${item.ItemID}"
+                                        data-timestamp-for-item="${itemTimestampForAttr}"
                                         title="คลิกเมื่อเสิร์ฟรายการนี้แล้ว">
-                                    รอ
+                                    รอ... <i class="bi bi-hourglass-split"></i>
                                 </button>
                             </div>
                         </li>`;
@@ -117,10 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
                  kitchenOrdersContainer.innerHTML = '<p class="text-center text-muted mt-3 col-12">ไม่มีรายการอาหารที่ต้องเตรียมในขณะนี้</p>';
             }
 
-            document.querySelectorAll('.mark-served-btn').forEach(btn => {
+            document.querySelectorAll('.kitchen-action-btn').forEach(btn => {
                 btn.addEventListener('click', handleMarkAsServed);
             });
-            updateElapsedTimes();
+            updateElapsedTimesAndButtonColors(); // เรียกครั้งแรกเพื่อให้แสดงเวลาและสีทันที
 
         } else if (orders && orders.error && isInitialLoad) {
             kitchenOrdersContainer.innerHTML = `<p class="text-danger text-center col-12">เกิดข้อผิดพลาด: ${orders.error}</p>`;
@@ -134,7 +148,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const orderId = button.dataset.orderid;
         const itemId = button.dataset.itemid;
 
-        const originalButtonText = button.innerHTML;
+        // หยุดการอัปเดตสีและเวลาสำหรับปุ่มนี้ทันที
+        button.classList.add('item-served-button'); // เพิ่ม class เพื่อให้ updateElapsedTimesAndButtonColors ข้ามไป
+        button.style.backgroundColor = ''; // ล้าง inline style หรือตั้งเป็นสีเขียวโดยตรง
+        button.style.color = '';
+        button.style.borderColor = '';
+
+
+        const originalButtonText = button.innerHTML; // เก็บไว้เผื่อ error
         button.disabled = true;
         button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
 
@@ -146,34 +167,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (result && result.success) {
             showUserMessage(result.message || `รายการ ${itemId} ถูกทำเครื่องหมายว่า "เสิร์ฟแล้ว"`, "success");
-            button.classList.remove('btn-warning');
-            button.classList.add('btn-success');
+            button.classList.remove('btn-warning'); // ถ้าเคยมีสี warning
+            button.classList.add('btn-success');    // เพิ่ม class สีเขียว
             button.innerHTML = '<i class="bi bi-check-circle-fill"></i> เสิร์ฟแล้ว';
-            // ไม่ต้อง disable อีก เพราะทำไปแล้ว และจะถูกควบคุมโดย class 'disabled' หรือการไม่ผูก event ใหม่
+            // ปุ่มยังคง disable อยู่
 
-            const elapsedTimeEl = button.closest('li').querySelector('.order-item-elapsed-time');
-            if (elapsedTimeEl) {
-                elapsedTimeEl.textContent = "(เสิร์ฟแล้ว)";
-                elapsedTimeEl.classList.add('text-success', 'fst-italic');
-            }
-            // หน่วงเวลาเล็กน้อยก่อนโหลดข้อมูลใหม่ เพื่อให้ User เห็นผลการกดปุ่ม
-            // และเพื่อให้แน่ใจว่า Server update เสร็จแล้วก่อนดึงข้อมูล
+            // หลังจากอัปเดตสถานะสำเร็จ ให้โหลดข้อมูลครัวใหม่แบบ background
+            // เพื่อให้รายการ/Ticket ที่เสร็จสมบูรณ์แล้วหายไปจากคิว
             setTimeout(() => {
                 loadKitchenOrders(false);
             }, 700);
 
-
         } else {
             showUserMessage(`เกิดข้อผิดพลาดในการอัปเดตสถานะ: ${result ? result.message : "ไม่สามารถเชื่อมต่อได้"}`, "danger");
-            button.disabled = false;
+            button.disabled = false; // คืนค่าปุ่มถ้า error
             button.innerHTML = originalButtonText;
+            button.classList.remove('item-served-button'); // เอา class ออกเพื่อให้ timer ทำงานต่อถ้า error
+             // เรียก update อีกครั้งเพื่อให้สีกลับมาถูกต้องตามเวลา (ถ้า error)
+            updateElapsedTimesAndButtonColors();
         }
     }
 
     if(refreshBtn) refreshBtn.addEventListener('click', () => loadKitchenOrders(true));
 
-    loadKitchenOrders(true);
-    setInterval(() => {
+    // เริ่มการอัปเดตเวลาและสีทุกๆ วินาที
+    if (elapsedTimeIntervalId) clearInterval(elapsedTimeIntervalId); // เคลียร์ interval เก่า (ถ้ามี)
+    elapsedTimeIntervalId = setInterval(updateElapsedTimesAndButtonColors, 1000); // อัปเดตทุกวินาที
+
+    loadKitchenOrders(true); // โหลดข้อมูลครัวครั้งแรก
+    setInterval(() => { // Polling ข้อมูลออเดอร์ใหม่จาก Server
         loadKitchenOrders(false);
     }, 20000);
 });
