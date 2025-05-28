@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadKitchenOrders(isInitialLoad = true) {
         if(kitchenLoadingPlaceholder && isInitialLoad) kitchenLoadingPlaceholder.style.display = 'block';
-        // Do not clear container immediately for background fetch to reduce flicker
 
         const orders = await fetchData('getKitchenOrders', {}, 'GET', null, !isInitialLoad);
         if(kitchenLoadingPlaceholder && isInitialLoad) kitchenLoadingPlaceholder.style.display = 'none';
@@ -16,15 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn("Background update for kitchen orders failed or returned no data.");
             return;
         }
-        if (!orders && isInitialLoad) { // Error on initial load
+        if (!orders && isInitialLoad) {
             kitchenOrdersContainer.innerHTML = '<p class="text-center text-danger mt-3 col-12">ไม่สามารถโหลดรายการอาหารได้</p>';
             return;
         }
-        // Clear content only if we are about to render new data or it's an initial load
+
         if (isInitialLoad || (orders && Array.isArray(orders))) {
             kitchenOrdersContainer.innerHTML = '';
         }
-
 
         if (orders && Array.isArray(orders) && orders.length > 0) {
             const groupedByOrderId = orders.reduce((acc, item) => {
@@ -36,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         items: []
                     };
                 }
-                acc[item.OrderID].items.push(item);
+                acc[item.OrderID].items.push(item); // item ที่นี่จะมี ItemNote จาก GAS แล้ว
                 return acc;
             }, {});
 
@@ -44,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return new Date(a.timestamp) - new Date(b.timestamp);
             });
 
-            let newContent = ''; // Build content as string to update DOM once
+            let newContent = '';
             sortedGroupedOrders.forEach(orderGroup => {
                 let itemsHtml = '<ul class="list-group list-group-flush">';
                 let overallCardStatusClass = "pending";
@@ -55,7 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     itemsHtml += `
                         <li class="list-group-item">
                             <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">${item.ItemName} <span class="badge bg-secondary">x ${item.Quantity}</span></h6>
+                                <div>
+                                    <h6 class="mb-1">${item.ItemName} <span class="badge bg-secondary">x ${item.Quantity}</span></h6>
+                                    ${item.ItemNote ? `<small class="text-danger fst-italic d-block"><strong>โน้ต:</strong> ${item.ItemNote}</small>` : ''} {/* <<<<---- แสดง ItemNote ที่นี่ */}
+                                </div>
                                 <small class="text-muted">สถานะ: ${item.Status}</small>
                             </div>
                             <div class="mt-2 text-end">`;
@@ -98,14 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             });
-             // Only update DOM if new content is different
-            if (kitchenOrdersContainer.innerHTML !== newContent && newContent !== '') { // Check newContent is not empty
+
+            if (kitchenOrdersContainer.innerHTML !== newContent && newContent !== '') {
                 kitchenOrdersContainer.innerHTML = newContent;
-            } else if (newContent === '' && orders && orders.length === 0) { // Handle case where all orders are cleared
+            } else if (newContent === '' && orders && orders.length === 0) {
                 kitchenOrdersContainer.innerHTML = '<p class="text-center text-muted mt-3 col-12">ยังไม่มีรายการสั่งอาหารใหม่ในขณะนี้</p>';
             }
 
-
+            // ผูก Event Listeners กับปุ่มที่สร้างขึ้นใหม่
             document.querySelectorAll('.kitchen-action-btn').forEach(btn => {
                 btn.addEventListener('click', e => {
                     const button = e.currentTarget;
@@ -131,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         else showUserMessage(`เกิดข้อผิดพลาดในการยืนยันบางรายการในออเดอร์ ${orderIdToConfirm}`, "warning");
                         loadKitchenOrders(false);
                     } else {
-                        // Re-enable button if confirmation is cancelled
                         button.disabled = false;
                         button.innerHTML = `<i class="bi bi-check2-all"></i> ยืนยันทุกรายการ`;
                     }
@@ -177,14 +177,14 @@ document.addEventListener('DOMContentLoaded', () => {
             buttonElement.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
         }
 
+        // User-initiated action, show spinner if not suppressed by other logic in fetchData
         const result = await fetchData('updateOrderStatus', { orderId: orderId, itemId: itemId, newStatus: newStatus }, 'GET', null, false);
 
         if (result && result.success) {
             if (!suppressReload) {
                  showUserMessage(result.message || `อัปเดตสถานะสำเร็จ`, "success");
-                 loadKitchenOrders(false);
+                 loadKitchenOrders(false); // Reload kitchen orders silently after action
             }
-            // No need to re-enable button here if page reloads successfully
             return result;
         } else {
             showUserMessage("เกิดข้อผิดพลาดในการอัปเดตสถานะ: " + (result ? result.message : "ไม่สามารถเชื่อมต่อได้"), "danger");
@@ -198,8 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(refreshBtn) refreshBtn.addEventListener('click', () => loadKitchenOrders(true));
 
-    loadKitchenOrders(true);
+    loadKitchenOrders(true); // Initial load with spinner
     setInterval(() => {
-        loadKitchenOrders(false);
+        loadKitchenOrders(false); // Background polling
     }, 15000); // อัปเดตหน้าห้องครัวทุก 15 วินาที
 });
