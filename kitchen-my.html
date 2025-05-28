@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html lang="my">
-<head>
+<html lang="my"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="kitchen-page-title">မီးဖိုချောင် - အော်ဒါစာရင်း</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <title id="kitchen-page-title">မီးဖိုချောင် - အော်ဒါစာရင်း</title> <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css"> 
     <style>
         body {
             padding-top: 70px;
@@ -45,7 +43,7 @@
         </div>
         <div id="kitchen-orders-container" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <p id="kitchen-loading-placeholder" class="text-center text-muted col-12">ဖွင့်နေသည်...</p>
-        </div>
+            </div>
     </div>
 
     <footer class="footer mt-5">
@@ -53,60 +51,91 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/site-config.js"></script>
-    <script src="js/shared.js"></script>
-
-    <script src="js/lang/my.js" id="language-script"></script>
+    <script src="js/config.js"></script> 
+    <script src="js/site-config.js"></script> 
+    <script src="js/shared.js"></script> 
     
-    <script src="js/kitchen-my.js"></script>
-
+    <script src="js/lang/my.js" id="language-script"></script> 
+    <script src="js/menu-translations-my.js" id="menu-translation-script"></script> {/* PATH: ถ้า kitchen-my.html อยู่ root */}
+    
+    <script src="js/kitchen-my.js"></script> {/* PATH: ถ้า kitchen-my.html อยู่ root */}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const langScriptTag = document.getElementById('language-script');
+            const langScript = document.getElementById('language-script');
+            const menuTranslateScript = document.getElementById('menu-translation-script');
+            let langFileLoaded = !!window.KITCHEN_LANG_MY; // Check if already loaded (e.g. from cache)
+            let menuTranslationsLoaded = !!window.MENU_TRANSLATIONS_MY;
 
-            function initializePage() {
-                // ตั้งค่าข้อความ Static จาก Site Config (ถ้ามี)
-                if (window.SITE_CONFIG) {
-                    // ใช้ KITCHEN_LANG_MY สำหรับ fallback text ภาษาพม่า
-                    const MY_LANG = window.KITCHEN_LANG_MY || {};
-                    const restaurantName = window.SITE_CONFIG.restaurantNameMyanmar || window.SITE_CONFIG.restaurantName || MY_LANG.defaultRestaurantName || "သင်၏စားသောက်ဆိုင်အမည်";
-                    const footerTxt = window.SITE_CONFIG.footerTextMyanmar || window.SITE_CONFIG.footerText || MY_LANG.defaultFooterText || "All rights reserved";
+            function attemptInitializePage() {
+                if (langFileLoaded && menuTranslationsLoaded) {
+                    // ตั้งค่าข้อความ Static จาก Site Config ก่อนเรียก initializeKitchenPage
+                    if (window.SITE_CONFIG) {
+                        const MY_LANG_FALLBACK = window.KITCHEN_LANG_MY || {}; // ใช้ fallback เผื่อกรณี my.js มีปัญหา
+                        const restaurantName = window.SITE_CONFIG.restaurantNameMyanmar || window.SITE_CONFIG.restaurantName || MY_LANG_FALLBACK.defaultRestaurantName || "သင်၏စားသောက်ဆိုင်အမည်";
+                        const kitchenPageTitleText = MY_LANG_FALLBACK.pageTitle || "မီးဖိုချောင် - အော်ဒါစာရင်း";
+                        const navTitleText = MY_LANG_FALLBACK.navTitle || "စားသောက်ဆိုင် စီမံခန့်ခွဲမှု (မီးဖိုချောင်)";
+                        const footerTxt = window.SITE_CONFIG.footerTextMyanmar || window.SITE_CONFIG.footerText || MY_LANG_FALLBACK.defaultFooterText || "All rights reserved";
 
-                    const footerRestaurantNameEl = document.getElementById('config-restaurant-name-footer-kitchen');
-                    if (footerRestaurantNameEl) footerRestaurantNameEl.textContent = restaurantName;
+                        document.title = `${kitchenPageTitleText} | ${restaurantName}`;
 
-                    const footerTextEl = document.getElementById('config-footer-text-kitchen');
-                    if (footerTextEl) footerTextEl.textContent = footerTxt;
-                }
-                const currentYearElKitchen = document.getElementById('current-year-kitchen');
-                if (currentYearElKitchen) currentYearElKitchen.textContent = new Date().getFullYear();
+                        const navKitchenTitleEl = document.getElementById('kitchen-nav-title');
+                        if (navKitchenTitleEl) navKitchenTitleEl.textContent = navTitleText;
 
-                // เรียกฟังก์ชันหลักใน kitchen-my.js
-                if (typeof initializeKitchenPage === "function") {
-                    initializeKitchenPage();
-                } else {
-                    console.error("initializeKitchenPage function is not defined in js/kitchen-my.js");
+                        const footerRestaurantNameEl = document.getElementById('config-restaurant-name-footer-kitchen');
+                        if (footerRestaurantNameEl) footerRestaurantNameEl.textContent = restaurantName;
+
+                        const footerTextEl = document.getElementById('config-footer-text-kitchen');
+                        if (footerTextEl) footerTextEl.textContent = footerTxt;
+                    }
+                    const currentYearElKitchen = document.getElementById('current-year-kitchen');
+                    if (currentYearElKitchen) currentYearElKitchen.textContent = new Date().getFullYear();
+
+                    // เรียกฟังก์ชันหลักใน kitchen-my.js
+                    if (typeof initializeKitchenPage === "function") {
+                        console.log("All scripts loaded, calling initializeKitchenPage()");
+                        initializeKitchenPage();
+                    } else {
+                        console.error("initializeKitchenPage function is not defined in js/kitchen-my.js. Orders will not load.");
+                    }
                 }
             }
 
-            if (langScriptTag) {
-                // ตรวจสอบว่า script โหลดเสร็จหรือยัง (บางเบราว์เซอร์อาจจะ execute script ต่อไปเลย)
-                // หรือ KITCHEN_LANG_MY พร้อมใช้งานหรือยัง
-                if (window.KITCHEN_LANG_MY) {
-                    console.log("KITCHEN_LANG_MY already loaded, initializing page.");
-                    initializePage();
-                } else {
-                    console.log("KITCHEN_LANG_MY not loaded yet, adding event listener to language script tag.");
-                    langScriptTag.addEventListener('load', initializePage);
-                    langScriptTag.addEventListener('error', function() {
-                        console.error("Failed to load my.js. Page initialization might fail or use fallbacks.");
-                        initializePage(); // พยายาม initialize ด้วย fallback
-                    });
-                }
+            if (langScript) {
+                langScript.addEventListener('load', function() {
+                    console.log("js/lang/my.js loaded.");
+                    langFileLoaded = true;
+                    attemptInitializePage();
+                });
+                langScript.addEventListener('error', function() {
+                    console.error("Failed to load js/lang/my.js. Using fallbacks.");
+                    langFileLoaded = true; // Mark as "done" to proceed with fallbacks
+                    attemptInitializePage();
+                });
             } else {
-                console.error("Language script tag not found.");
-                initializePage(); // พยายาม initialize ด้วย fallback
+                console.error("Language script (lang/my.js) tag not found.");
+                langFileLoaded = true; // Assume failure and proceed
+            }
+
+            if (menuTranslateScript) {
+                menuTranslateScript.addEventListener('load', function() {
+                    console.log("js/menu-translations-my.js loaded.");
+                    menuTranslationsLoaded = true;
+                    attemptInitializePage();
+                });
+                menuTranslateScript.addEventListener('error', function() {
+                    console.error("Failed to load js/menu-translations-my.js. Menu names will be in Thai.");
+                    menuTranslationsLoaded = true; // Mark as "done" to proceed with Thai names
+                    attemptInitializePage();
+                });
+            } else {
+                console.error("Menu translation script tag not found.");
+                menuTranslationsLoaded = true; // Assume failure and proceed
+            }
+            
+            // ถ้า script โหลดจาก cache เร็วมาก event 'load' อาจจะไม่ทัน
+            if (langFileLoaded && menuTranslationsLoaded) {
+                console.log("Language and menu translation scripts were likely cached. Initializing page.");
+                attemptInitializePage();
             }
         });
     </script>
