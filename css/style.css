@@ -1,31 +1,43 @@
 /* css/style.css */
 body {
-    font-family: 'Sarabun', sans-serif; /* ใช้ฟอนต์สารบรรณ */
-    background-color: #f8f9fa; /* สีพื้นหลังอ่อนๆ */
+    font-family: 'Sarabun', sans-serif;
+    background-color: #f8f9fa;
     color: #333;
     padding-top: 70px; /* สำหรับ fixed navbar */
+    padding-bottom: 90px; /* เพิ่ม padding ด้านล่างให้ body ถ้า FAB สูง */
 }
 
 /* Navbar Styling */
+.navbar {
+    border-bottom: 1px solid #e0e0e0;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    /* background-color: #ffffff; /* Uncomment ถ้าต้องการพื้นหลังขาว */
+}
 .navbar-brand img {
     max-height: 40px;
     margin-right: 10px;
 }
-.navbar {
-    box-shadow: 0 2px 4px rgba(0,0,0,.1);
-    background-color: #ffffff; /* Navbar สีขาว */
-}
 .navbar-brand-text {
+    font-weight: normal;
+    font-size: 1rem;
+}
+#nav-cart-total {
     font-weight: bold;
-    color: #5E35B1; /* สีม่วงเข้มสำหรับแบรนด์ */
+    font-size: 0.9rem;
+}
+.navbar-text {
+    padding-top: .25rem;
+    padding-bottom: .25rem;
 }
 
-/* Header Styling */
+
+/* Page Header Styling */
 .page-header {
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); /* Gradient สวยๆ */
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
     color: white;
-    padding: 2rem 1rem;
-    margin-bottom: 2rem;
+    padding: 1.5rem 1rem; /* ลด padding จากเดิมเล็กน้อย */
+    margin-bottom: 1.5rem; /* ลด margin-bottom */
     border-radius: 0 0 .5rem .5rem;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -35,52 +47,95 @@ body {
     font-weight: 300;
 }
 .page-header h1 {
-    font-size: 2.5rem;
+    font-size: 1.75rem; /* ปรับขนาดให้เหมาะสมกับมือถือ */
 }
-.page-header h2 {
-    font-size: 1.5rem;
+.page-header h2 { /* ไม่ได้ใช้ h2 ใน header ล่าสุดแล้ว */
+    font-size: 1.2rem;
     opacity: 0.9;
 }
 
+/* Category Pills Navigation */
+#category-nav-pills .nav-link {
+    color: #6c757d;
+    margin-right: 0.25rem;
+    margin-bottom: 0.5rem; /* เพิ่มระยะห่างระหว่างแถวของ pills */
+    border: 1px solid #dee2e6;
+    padding: 0.375rem 0.75rem; /* ปรับ padding ของ pill */
+    font-size: 0.9rem;
+}
+#category-nav-pills .nav-link.active {
+    color: #fff;
+    background-color: #6200EA;
+    border-color: #6200EA;
+}
+
+/* Category Header in Menu */
+.category-header {
+    background-color: #e9ecef;
+    padding: 0.5rem 1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+    font-weight: bold;
+    color: #495057;
+    font-size: 1.1rem;
+}
+
 /* Card Styling (Menu Items, Orders) */
-.menu-card, .order-card, .kitchen-order-card, .admin-table-card {
+.menu-card-no-image {
     transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
     border: 1px solid #e0e0e0;
-    border-radius: 0.75rem; /* มุมมนมากขึ้น */
+    border-radius: 0.5rem; /* ลดความมนลงเล็กน้อย */
     background-color: #fff;
-    overflow: hidden; /* ป้องกัน content ล้น card */
-    margin-bottom: 1.5rem;
+    overflow: hidden;
+    margin-bottom: 1rem; /* ลด margin-bottom ของ card */
 }
-
-.menu-card:hover, .order-card:hover, .kitchen-order-card:hover, .admin-table-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.15)!important;
+.menu-card-no-image:hover {
+    transform: translateY(-3px); /* ลดการ hover effect */
+    box-shadow: 0 .3rem 1rem rgba(0,0,0,.1)!important;
 }
-
-.menu-card img {
-    border-top-left-radius: 0.75rem;
-    border-top-right-radius: 0.75rem;
-    object-fit: cover;
-    height: 220px; /* ปรับความสูงรูปภาพ */
-    width: 100%;
+.menu-card-no-image .card-body {
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
-.card-title {
+.menu-card-no-image .card-title {
     font-weight: bold;
     color: #333;
+    font-size: 0.95rem;
+    line-height: 1.3;
+    margin-bottom: 0.25rem !important; /* ลด margin ของ title */
 }
-.card-text.price {
-    font-size: 1.25rem;
+.menu-card-no-image .price {
+    font-size: 0.9rem;
     font-weight: bold;
-    color: #28a745; /* สีเขียวสำหรับราคา */
+    color: #28a745;
 }
-.card-footer {
-    background-color: #f8f9fa;
-    border-top: 1px solid #e0e0e0;
+.menu-card-no-image .add-to-cart-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    line-height: 1;
+    border-color: #6200EA;
+    color: #6200EA;
 }
+.menu-card-no-image .add-to-cart-btn:hover {
+    background-color: #6200EA;
+    color: #fff;
+}
+.menu-card-no-image .small.text-muted {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    margin-top: 0.25rem; /* เพิ่ม margin-top เล็กน้อยถ้ามี description */
+}
+.menu-card-no-image .d-flex .flex-grow-1 {
+    min-width: 0;
+}
+
 
 /* Button Styling */
 .btn-primary {
-    background-color: #6200EA; /* สีม่วง Primary */
+    background-color: #6200EA;
     border-color: #6200EA;
     transition: background-color 0.2s ease;
 }
@@ -88,8 +143,8 @@ body {
     background-color: #3700B3;
     border-color: #3700B3;
 }
-.btn-secondary {
-    background-color: #03DAC6; /* สีเขียวอมฟ้า Secondary */
+.btn-secondary { /* ใช้กับ FAB */
+    background-color: #03DAC6;
     border-color: #03DAC6;
     color: #000;
 }
@@ -118,291 +173,162 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(255, 255, 255, 0.8);
-    z-index: 1056; /* สูงกว่า navbar */
-    display: none; /* ซ่อนไว้ตอนแรก */
+    z-index: 1056;
+    display: none;
     justify-content: center;
     align-items: center;
 }
 #loading-spinner .spinner-border {
     width: 3rem;
     height: 3rem;
-    color: #6200EA; /* สีเดียวกับ primary button */
+    color: #6200EA;
 }
 
 /* User Message Container */
 #user-message-container {
     position: fixed;
-    top: 80px; /* ใต้ Navbar */
+    top: 80px;
     right: 20px;
-    z-index: 1055; /* สูงกว่า content แต่ต่ำกว่า spinner */
-    width: auto;
-    max-width: 400px;
+    left: 20px; /* ให้แสดงผลกลางๆ บนมือถือได้ดีขึ้น */
+    z-index: 1055;
+    width: auto; /* ให้ปรับตาม content */
+    max-width: 400px; /* จำกัดความกว้างสูงสุด */
+    margin-left: auto; /* จัดกึ่งกลาง */
+    margin-right: auto; /* จัดกึ่งกลาง */
 }
+@media (min-width: 576px) { /* สำหรับจอใหญ่ขึ้น ให้ชิดขวาเหมือนเดิม */
+    #user-message-container {
+        left: auto;
+        margin-left: unset;
+        margin-right: unset;
+    }
+}
+
 
 /* Cart & Order Summary Styling */
 .summary-section {
     background-color: #ffffff;
-    padding: 1.5rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,.1);
-    margin-bottom: 2rem;
+    padding: 1.25rem; /* ลด padding เล็กน้อย */
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,.075);
+    margin-bottom: 1.5rem;
 }
 .summary-section h3, .summary-section h4 {
     color: #5E35B1;
+    font-size: 1.1rem; /* ปรับขนาด h3, h4 */
+}
+.summary-section h4 {
+    font-size: 1rem;
 }
 
-/* Kitchen Order Card Status Border */
-.kitchen-order-card.status-pending { border-left: 5px solid #ffc107; /* สีเหลือง */ }
-.kitchen-order-card.status-confirmed { border-left: 5px solid #17a2b8; /* สีฟ้า */ }
-.kitchen-order-card.status-preparing { border-left: 5px solid #fd7e14; /* สีส้ม */ }
-.kitchen-order-card.status-served { border-left: 5px solid #28a745; /* สีเขียว */ }
+.cart-item-note {
+    font-size: 0.8rem;
+    color: #dc3545; /* สีแดงสำหรับโน้ตที่ลูกค้าใส่ */
+    font-style: italic;
+    margin-top: 0.1rem; /* ปรับระยะห่างของโน้ต */
+    /* d-block ถูกใส่ใน JS แล้ว */
+}
 
+/* Current order section note styling */
+#current-order-items-display .cart-item-note {
+    /* สไตล์เฉพาะสำหรับโน้ตในรายการที่สั่งไปแล้ว (ถ้าต้องการให้ต่างจากในตะกร้า) */
+    color: #5E35B1; /* อาจจะใช้สีม่วงเพื่อให้ดูต่าง */
+    font-weight: normal;
+}
+#current-order-items-display .text-muted.d-block { /* สถานะในรายการที่สั่งไปแล้ว */
+    font-size: 0.8rem;
+    margin-top: 0.1rem;
+}
+
+
+/* Kitchen Order Card (สไตล์เดิม) */
+.kitchen-order-card.status-pending { border-left: 5px solid #ffc107; }
+.kitchen-order-card.status-confirmed { border-left: 5px solid #17a2b8; }
+.kitchen-order-card.status-preparing { border-left: 5px solid #fd7e14; }
+.kitchen-order-card.status-served { border-left: 5px solid #28a745; }
 .kitchen-order-card .card-header {
     font-weight: bold;
 }
 
-/* Admin Accordion */
+/* Admin Accordion (สไตล์เดิม) */
 .accordion-button:not(.collapsed) {
     color: #fff;
-    background-color: #6a11cb; /* สีเดียวกับ header */
+    background-color: #6a11cb;
 }
 .accordion-button:focus {
     box-shadow: none;
     border-color: rgba(0,0,0,.125);
 }
 
-/* Footer */
-.footer {
-    background-color: #343a40;
-    color: white;
-    padding: 1.5rem 0;
-    text-align: center;
-    margin-top: 3rem;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    body {
-        padding-top: 60px; /* ปรับ padding สำหรับ navbar ที่เล็กกว่า */
-    }
-    .page-header h1 {
-        font-size: 2rem;
-    }
-    .page-header h2 {
-        font-size: 1.2rem;
-    }
-    .menu-card img {
-        height: 180px;
-    }
-    #user-message-container {
-        top: 70px;
-        left: 10px;
-        right: 10px;
-        width: auto;
-        max-width: none;
-    }
-}
-/* css/style.css (ส่วนที่อาจจะต้องเพิ่ม) */
-
-.navbar-brand-text {
-    font-weight: normal; /* ปรับตามความชอบ */
-}
-
-#nav-cart-count, #nav-cart-total {
-    font-weight: bold;
-}
-
-.category-header {
-    background-color: #e9ecef; /* สีพื้นหลังหมวดหมู่ */
-    padding: 0.5rem 1rem;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    border-radius: 0.25rem;
-    font-weight: bold;
-    color: #495057;
-    font-size: 1.1rem; /* ปรับขนาดฟอนต์ */
-}
-
-.menu-card-no-image .card-body {
-    padding-top: 1rem; /* ปรับ padding ด้านบนเมื่อไม่มีรูป */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* จัดให้ปุ่มอยู่ล่างสุด */
-}
-
-.menu-card-no-image .card-title {
-    font-size: 1rem; /* ปรับขนาดฟอนต์ชื่อเมนู */
-}
-.menu-card-no-image .price {
-    font-size: 1rem; /* ปรับขนาดฟอนต์ราคา */
-    text-align: right; /* ราคาชิดขวา */
-}
-.menu-card-no-image .add-to-cart-btn {
-    font-size: 0.9rem; /* ปรับขนาดฟอนต์ปุ่ม */
-}
-
-/* Category Pills Navigation */
-#category-nav-pills .nav-link {
-    color: #6c757d;
-    margin-right: 0.25rem;
-    margin-bottom: 0.25rem;
-    border: 1px solid #dee2e6;
-}
-#category-nav-pills .nav-link.active {
-    color: #fff;
-    background-color: #6200EA; /* สี Primary */
-    border-color: #6200EA;
-}
-
 /* Floating Action Button (FAB) for scrolling */
 .scroll-to-cart-btn {
     position: fixed;
     bottom: 20px;
     right: 20px;
     z-index: 1030;
-    background-color: #03DAC6; /* สี Secondary */
+    background-color: #03DAC6;
     border-color: #03DAC6;
     color: #000;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .scroll-to-cart-btn:hover {
     background-color: #018786;
     border-color: #018786;
     color: #fff;
 }
-#fab-cart-count {
-    font-size: 0.7rem; /* ขนาดตัวเลขบน FAB */
-    line-height: 1;
-    padding: 0.25em 0.4em;
-}
-
-/* ให้ footer ไม่ทับปุ่ม FAB */
-body {
-    padding-bottom: 80px; /* เพิ่ม padding ด้านล่างให้ body ถ้า FAB สูง */
-}
-
-/* css/style.css (ส่วนที่อาจจะต้องเพิ่ม/ปรับ) */
-
-/* ... (สไตล์เดิมของคุณ) ... */
-
-.menu-card-no-image .card-body {
-    padding: 0.75rem 1rem; /* ปรับ padding ของ card body */
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* จัดให้อยู่กึ่งกลางแนวตั้งถ้ามีพื้นที่เหลือ */
-}
-
-.menu-card-no-image .card-title {
-    font-size: 0.95rem; /* ปรับขนาดฟอนต์ชื่อเมนูให้พอดี */
-    line-height: 1.3;
-}
-
-.menu-card-no-image .price {
-    font-size: 0.9rem; /* ปรับขนาดฟอนต์ราคา */
-    color: #28a745; /* สีเขียวสำหรับราคา */
-}
-
-.menu-card-no-image .add-to-cart-btn {
-    padding: 0.25rem 0.5rem; /* ทำให้ปุ่มเล็กลง */
-    font-size: 0.8rem; /* ปรับขนาดไอคอน/ฟอนต์ในปุ่ม */
-    line-height: 1; /* ให้ไอคอนอยู่กึ่งกลางปุ่ม */
-    border-color: #6200EA; /* สีเดียวกับ Primary button */
-    color: #6200EA;
-}
-.menu-card-no-image .add-to-cart-btn:hover {
-    background-color: #6200EA;
-    color: #fff;
-}
-
-.menu-card-no-image .small.text-muted { /* สไตล์สำหรับ Description */
-    font-size: 0.75rem;
-    line-height: 1.2;
-}
-
-/* ปรับ layout ของ d-flex ให้ชื่อเมนูขยายได้เต็มที่ */
-.menu-card-no-image .d-flex .flex-grow-1 {
-    min-width: 0; /* Allow text to shrink and wrap if needed */
-}
-
-/* css/style.css (ส่วนที่อาจจะต้องเพิ่ม/ปรับ) */
-
-/* ... (สไตล์เดิมของคุณ) ... */
-
-.navbar {
-    /* background-color: #ffffff; /* ถ้าต้องการให้ Navbar มีสีพื้นหลัง */
-    /* box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075) !important; /* เพิ่ม !important ถ้า Bootstrap class อื่น override */
-    border-bottom: 1px solid #e0e0e0; /* เพิ่มเส้นขอบล่างให้ Navbar ชัดเจนขึ้น */
-    padding-top: 0.75rem; /* ปรับ padding ของ navbar เล็กน้อย */
-    padding-bottom: 0.75rem;
-}
-
-.navbar .container {
-    /* ทำให้ container ใน navbar ขยายเต็มความกว้างและจัดเรียง item */
-    /* d-flex justify-content-between align-items-center ถูกใส่ใน HTML แล้ว */
-}
-
-.navbar-brand-text {
-    font-size: 1rem; /* ปรับขนาดฟอนต์ชื่อร้านให้พอดี */
-}
-
-#nav-cart-total {
-    font-weight: bold;
-    font-size: 0.9rem; /* ปรับขนาดฟอนต์ยอดรวมบน Navbar */
-}
-.navbar-text { /* เพิ่มเพื่อให้จัดกึ่งกลางแนวตั้งได้ดีขึ้นกับ navbar-brand */
-    padding-top: .25rem;
-    padding-bottom: .25rem;
-}
-
-
-/* Floating Action Button (FAB) for scrolling */
-.scroll-to-cart-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1030;
-    background-color: #6200EA; /* สี Primary หรือสีที่คุณต้องการ */
-    border-color: #6200EA;
-    color: #fff; /* สีไอคอน */
-    width: 56px; /* ขนาดมาตรฐานของ FAB */
-    height: 56px;
-    padding: 0; /* ลบ padding เดิมเพื่อให้ไอคอนอยู่กึ่งกลาง */
-    display: inline-flex; /* ใช้ flex เพื่อจัดไอคอนกึ่งกลาง */
-    align-items: center;
-    justify-content: center;
-}
-.scroll-to-cart-btn:hover {
-    background-color: #3700B3; /* สี Primary ที่เข้มขึ้น */
-    border-color: #3700B3;
-}
-.scroll-to-cart-btn i { /* ขนาดไอคอนใน FAB */
+.scroll-to-cart-btn i {
     font-size: 1.5rem;
 }
-
 #fab-cart-count {
     font-size: 0.7rem;
     line-height: 1;
-    padding: 0.2em 0.5em; /* ปรับ padding ของ badge */
-    /* top: 0; */ /* ตำแหน่งอาจจะต้องปรับละเอียดอีกครั้ง */
-    /* start: 100%; */
-    /* transform: translate(-50%, -50%); /* ปรับ transform ให้ badge อยู่มุมๆ */
-    /* ทำให้ badge อยู่มุมขวาบนของ FAB */
+    padding: 0.2em 0.5em;
     position: absolute;
-    top: -5px; /* ปรับตำแหน่งตามความเหมาะสม */
-    right: -5px; /* ปรับตำแหน่งตามความเหมาะสม */
-
+    top: -5px;
+    right: -5px;
 }
 
-/* ให้ footer ไม่ทับปุ่ม FAB */
-body {
-    padding-bottom: 90px; /* เพิ่ม padding ด้านล่างให้ body (56px ของ FAB + 20px margin + safety) */
+/* Item Note Modal Textarea */
+#item-note-modal .modal-body textarea {
+    min-height: 80px; /* ลดความสูง textarea เล็กน้อย */
 }
 
-/* css/style.css (เพิ่มสไตล์สำหรับโน้ตในหน้าครัว) */
 
-.kitchen-order-card .list-group-item .text-danger.fst-italic {
-    /* background-color: #fff3cd; /* สีเหลืองอ่อนๆ */
-    /* padding: 0.25rem 0.5rem; */
-    /* border-radius: 0.2rem; */
-    margin-top: 0.25rem; /* เพิ่มระยะห่างด้านบนเล็กน้อย */
-    font-size: 0.85rem; /* ปรับขนาดฟอนต์ของโน้ต */
+/* Footer */
+.footer {
+    background-color: #343a40;
+    color: white;
+    padding: 1rem 0; /* ลด padding footer */
+    text-align: center;
+    margin-top: 2rem; /* ลด margin-top footer */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding-top: 60px;
+    }
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+    #user-message-container {
+        top: 70px;
+    }
+    .menu-card-no-image .card-title {
+        font-size: 0.9rem;
+    }
+    .menu-card-no-image .price {
+        font-size: 0.85rem;
+    }
+    .summary-section h3, .summary-section h4 {
+        font-size: 1rem;
+    }
+    .summary-section h4 {
+        font-size: 0.95rem;
+    }
 }
