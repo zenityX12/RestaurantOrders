@@ -30,18 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
             let newContent = '';
             tablesData.forEach((tableInfo, index) => {
                 const tableNumber = tableInfo.table;
-                const orders = tableInfo.orders; // orders is an array of item objects
-                let currentTableTotalAmount = 0; // Recalculate total for display, excluding cancelled items
-                
+                const orders = tableInfo.orders;
+                let currentTableTotalAmount = 0;
                 orders.forEach(item => {
                     if (item.Status !== "Cancelled") {
                         currentTableTotalAmount += parseFloat(item.Subtotal || 0);
                     }
                 });
 
-
                 const uniqueOrderIds = Array.from(new Set(orders.map(o => o.OrderID))).join(', ') || 'N/A';
-
                 const accordionItemId = `table-collapse-${tableNumber.toString().replace(/[^a-zA-Z0-9]/g, '')}`;
                 const accordionHeaderId = `table-header-${tableNumber.toString().replace(/[^a-zA-Z0-9]/g, '')}`;
 
@@ -50,8 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     orders.forEach(item => {
                         const canCancel = item.Status !== "Cancelled" && item.Status !== "Billed" && item.Status !== "Paid";
                         const itemStatusDisplay = item.Status === "Cancelled" ? `<span class="text-danger fw-bold">${item.Status}</span>` : item.Status;
-                        
-                        // Ensure item.Timestamp is valid before using in data-attribute
                         const itemTimestampForAttr = (item.Timestamp instanceof Date) ? item.Timestamp.toISOString() : item.Timestamp;
 
                         itemsHtml += `
@@ -91,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h2 class="accordion-header" id="${accordionHeaderId}">
                             <button class="accordion-button ${buttonCollapsedClass}" type="button" data-bs-toggle="collapse" data-bs-target="#${accordionItemId}" aria-expanded="${isExpanded}" aria-controls="${accordionItemId}">
                                 <strong>โต๊ะ ${tableNumber}</strong> &nbsp;-&nbsp;
-                                <span class="badge bg-success me-2">ยอดรวม (ไม่รวมยกเลิก): ${currentTableTotalAmount.toFixed(2)} บาท</span>
+                                <span class="badge bg-success me-2">ยอดรวม: ${currentTableTotalAmount.toFixed(2)} บาท</span>
                                 <small class="text-muted">(Order IDs: ${uniqueOrderIds})</small>
                             </button>
                         </h2>
@@ -135,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleCheckBill(event) {
         const button = event.currentTarget;
         const tableNum = button.dataset.table;
-        const amount = button.dataset.amount; // ยอดนี้คือยอดที่คำนวณใหม่ ไม่รวมรายการยกเลิก
+        const amount = button.dataset.amount;
 
         if (!confirm(`คุณต้องการเช็คบิลโต๊ะ ${tableNum} ยอดรวม ${amount} บาท ใช่หรือไม่? \n(รายการที่ถูก "Cancelled" จะไม่ถูกรวมในยอดนี้)`)) {
             return;
