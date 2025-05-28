@@ -5,14 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const kitchenLoadingPlaceholder = document.getElementById('kitchen-loading-placeholder');
     const refreshBtn = document.getElementById('refresh-kitchen-orders-btn');
 
-    // ฟังก์ชันอัปเดตและคำนวณเวลาที่ผ่านไป
     function updateElapsedTimes() {
         document.querySelectorAll('.order-item-elapsed-time').forEach(el => {
             const orderTimestampStr = el.dataset.timestamp;
-            // ตรวจสอบว่าปุ่มยังไม่ได้ถูก disable (คือยังไม่ได้กด "เสิร์ฟแล้ว")
-            // หรือถ้าปุ่ม disable ไปแล้ว แต่ยังต้องการแสดงเวลาที่ใช้ไป ก็ปรับ logic ตรงนี้
             const associatedButton = el.closest('li').querySelector('.kitchen-action-btn');
-            if (orderTimestampStr && associatedButton && !associatedButton.classList.contains('btn-success')) { // เช็คจาก class สีเขียว (btn-success)
+            if (orderTimestampStr && associatedButton && !associatedButton.classList.contains('btn-success')) {
                 const startTime = new Date(orderTimestampStr).getTime();
                 const now = new Date().getTime();
                 const diffMs = now - startTime;
@@ -23,15 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     el.textContent = `${minutes} นาทีที่แล้ว`;
                 }
-                 el.classList.remove('text-success', 'fst-italic'); // ลบสไตล์ "เสิร์ฟแล้ว" ออก
+                 el.classList.remove('text-success', 'fst-italic');
             } else if (associatedButton && associatedButton.classList.contains('btn-success')) {
-                // ถ้าปุ่มเป็นสีเขียว (เสิร์ฟแล้ว) ให้แสดงข้อความอื่น หรือล้างข้อความเวลา
                 el.textContent = "(เสิร์ฟแล้ว)";
                 el.classList.add('text-success', 'fst-italic');
             }
         });
     }
-    const elapsedTimeInterval = setInterval(updateElapsedTimes, 60000); // อัปเดตทุก 1 นาที
+    const elapsedTimeInterval = setInterval(updateElapsedTimes, 60000);
 
 
     async function loadKitchenOrders(isInitialLoad = true) {
@@ -49,13 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // เก็บ OrderID ของ Ticket ที่มีอยู่บนหน้าจอก่อนเคลียร์ (สำหรับ Background Update)
-        const existingTicketOrderIds = !isInitialLoad ? Array.from(kitchenOrdersContainer.querySelectorAll('.kitchen-ticket-card')).map(card => card.dataset.orderid) : [];
-
-
         if (isInitialLoad || (orders && Array.isArray(orders))) {
-             // ถ้าเป็น background update และไม่มี order ใหม่เลย ก็อาจจะไม่ต้อง clear ทั้งหมด
-             // แต่เพื่อความง่าย และให้ UI สอดคล้องกับข้อมูลจาก server เสมอ การ clear แล้ว render ใหม่จะปลอดภัยกว่า
             kitchenOrdersContainer.innerHTML = '';
         }
 
@@ -70,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         items: []
                     };
                 }
-                // item ที่ได้จาก getKitchenQueueOrders จะมีสถานะเป็น "Preparing" เท่านั้น
                 acc[item.OrderID].items.push(item);
                 return acc;
             }, {});
@@ -81,20 +70,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let newContent = '';
             sortedOrderTickets.forEach(ticket => {
-                // เนื่องจาก getKitchenQueueOrders ดึงมาเฉพาะ "Preparing"
-                // ถ้า ticket.items ว่างเปล่า แสดงว่า OrderID นี้ไม่มีรายการ Preparing เหลือแล้ว (ควรจะถูกกรองจาก GAS ไปแล้ว)
-                // แต่ถ้ายังหลุดมา ก็ไม่ต้อง render
                 if (ticket.items.length === 0) return;
 
                 let itemsHtml = '<ul class="list-group list-group-flush">';
                 ticket.items.forEach(item => {
-                    // ปุ่มจะเริ่มต้นเป็น "รอ" เสมอ เพราะรายการที่ดึงมาคือ "Preparing"
                     itemsHtml += `
                         <li class="list-group-item py-2">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div class="me-2">
                                     <h6 class="mb-1">${item.ItemName} <span class="badge bg-secondary">x ${item.Quantity}</span></h6>
-                                    ${item.ItemNote ? `<small class="text-danger fst-italic d-block admin-item-note"><strong>โน้ト:</strong> ${item.ItemNote}</small>` : ''}
+                                    ${item.ItemNote ? `<small class="text-danger fst-italic d-block admin-item-note"><strong>โน้ต:</strong> ${item.ItemNote}</small>` : ''}
                                     <small class="order-item-elapsed-time text-muted d-block" data-timestamp="${item.Timestamp}">กำลังคำนวณ...</small>
                                 </div>
                                 <button class="btn btn-sm btn-warning kitchen-action-btn mark-served-btn"
@@ -150,45 +135,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const itemId = button.dataset.itemid;
 
         const originalButtonText = button.innerHTML;
-        button.disabled = true; // Disable ทันทีที่กด
+        button.disabled = true;
         button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
 
         const result = await fetchData('updateOrderStatus', {
             orderId: orderId,
             itemId: itemId,
             newStatus: "Served"
-        }, 'GET', null, false); // User action, show full spinner via fetchData
+        }, 'GET', null, false);
 
         if (result && result.success) {
             showUserMessage(result.message || `รายการ ${itemId} ถูกทำเครื่องหมายว่า "เสิร์ฟแล้ว"`, "success");
-
-            // เปลี่ยนปุ่มเป็น "เสิร์ฟแล้ว" (สีเขียว) และยังคง disable
             button.classList.remove('btn-warning');
-            button.classList.add('btn-success'); // ไม่ต้อง add 'disabled' เพราะ disabled ไปแล้ว
+            button.classList.add('btn-success');
             button.innerHTML = '<i class="bi bi-check-circle-fill"></i> เสิร์ฟแล้ว';
+            // ไม่ต้อง disable อีก เพราะทำไปแล้ว และจะถูกควบคุมโดย class 'disabled' หรือการไม่ผูก event ใหม่
 
             const elapsedTimeEl = button.closest('li').querySelector('.order-item-elapsed-time');
             if (elapsedTimeEl) {
                 elapsedTimeEl.textContent = "(เสิร์ฟแล้ว)";
                 elapsedTimeEl.classList.add('text-success', 'fst-italic');
             }
-
-            // ตรวจสอบว่าทุกรายการใน Ticket นี้ถูกกด "เสิร์ฟแล้ว" (คือเป็นปุ่มสีเขียว) หรือไม่
-            // ถ้าใช่ทั้งหมด Ticket นี้จะหายไปในรอบการ refresh ครั้งถัดไป เพราะ getKitchenQueueOrders จะไม่ดึงมาแล้ว
-            // หรือถ้าอยากให้หายไปทันที อาจจะต้องมี logic ซ่อน DOM element ของ ticket นั้นๆ
-            // แต่เพื่อให้ง่ายและข้อมูลตรงกับ server เสมอ การรอ refresh รอบถัดไป (ซึ่งจะค่อนข้างเร็ว) ก็เป็นวิธีที่ดี
-
-            // เพื่อให้ UI ตอบสนองเร็วขึ้น อาจจะโหลดข้อมูลใหม่ทันทีแบบ background
-            // แต่การทำแบบนี้อาจจะทำให้เกิดการเรียก API ซ้อนกันถ้าผู้ใช้กดยิกๆ
-            // การปล่อยให้ interval ทำงาน หรือการกดปุ่ม refresh โดยรวม อาจจะดีกว่า
-            // หรือถ้าจะให้ดีคือ หลังจากกดปุ่มสำเร็จ ให้รอสักพักเล็กน้อยแล้วค่อยโหลดใหม่
+            // หน่วงเวลาเล็กน้อยก่อนโหลดข้อมูลใหม่ เพื่อให้ User เห็นผลการกดปุ่ม
+            // และเพื่อให้แน่ใจว่า Server update เสร็จแล้วก่อนดึงข้อมูล
             setTimeout(() => {
-                loadKitchenOrders(false); // โหลดข้อมูลครัวใหม่แบบ background เพื่ออัปเดตทันที
-            }, 500); // หน่วงเวลาเล็กน้อย
+                loadKitchenOrders(false);
+            }, 700);
+
 
         } else {
             showUserMessage(`เกิดข้อผิดพลาดในการอัปเดตสถานะ: ${result ? result.message : "ไม่สามารถเชื่อมต่อได้"}`, "danger");
-            button.disabled = false; // คืนค่าปุ่มถ้า error
+            button.disabled = false;
             button.innerHTML = originalButtonText;
         }
     }
@@ -198,5 +175,5 @@ document.addEventListener('DOMContentLoaded', () => {
     loadKitchenOrders(true);
     setInterval(() => {
         loadKitchenOrders(false);
-    }, 20000); // อัปเดตหน้าห้องครัวทุก 20 วินาที (หรือตามความเหมาะสม)
+    }, 20000);
 });
