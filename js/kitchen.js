@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         items: []
                     };
                 }
-                acc[item.OrderID].items.push(item); // item ที่นี่จะมี ItemNote จาก GAS แล้ว
+                acc[item.OrderID].items.push(item);
                 return acc;
             }, {});
 
@@ -50,12 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if (orderGroup.items.some(i => i.Status === "Confirmed")) overallCardStatusClass = "confirmed";
 
                 orderGroup.items.forEach(item => {
+                    // ***** ส่วนที่แก้ไข Comment ที่ผิดพลาด *****
                     itemsHtml += `
                         <li class="list-group-item">
                             <div class="d-flex w-100 justify-content-between">
                                 <div>
                                     <h6 class="mb-1">${item.ItemName} <span class="badge bg-secondary">x ${item.Quantity}</span></h6>
-                                    ${item.ItemNote ? `<small class="text-danger fst-italic d-block"><strong>โน้ต:</strong> ${item.ItemNote}</small>` : ''} {/* <<<<---- แสดง ItemNote ที่นี่ */}
+                                    ${item.ItemNote ? `<small class="text-danger fst-italic d-block"><strong>โน้ต:</strong> ${item.ItemNote}</small>` : ''}
                                 </div>
                                 <small class="text-muted">สถานะ: ${item.Status}</small>
                             </div>
@@ -117,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.addEventListener('click', async e => {
                     const button = e.currentTarget;
                     const orderIdToConfirm = button.dataset.orderid;
+                    // หา orderGroup จาก sortedGroupedOrders อีกครั้งเพื่อให้แน่ใจว่าได้ข้อมูลล่าสุด (ถ้ามีการ re-render)
                     const orderGroup = sortedGroupedOrders.find(og => og.orderId === orderIdToConfirm);
                     if (orderGroup && confirm(`ยืนยันทุกรายการ "Pending" ในออเดอร์ ${orderIdToConfirm} หรือไม่?`)){
                         button.disabled = true;
@@ -177,13 +179,12 @@ document.addEventListener('DOMContentLoaded', () => {
             buttonElement.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
         }
 
-        // User-initiated action, show spinner if not suppressed by other logic in fetchData
         const result = await fetchData('updateOrderStatus', { orderId: orderId, itemId: itemId, newStatus: newStatus }, 'GET', null, false);
 
         if (result && result.success) {
             if (!suppressReload) {
                  showUserMessage(result.message || `อัปเดตสถานะสำเร็จ`, "success");
-                 loadKitchenOrders(false); // Reload kitchen orders silently after action
+                 loadKitchenOrders(false);
             }
             return result;
         } else {
@@ -198,8 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(refreshBtn) refreshBtn.addEventListener('click', () => loadKitchenOrders(true));
 
-    loadKitchenOrders(true); // Initial load with spinner
+    loadKitchenOrders(true);
     setInterval(() => {
-        loadKitchenOrders(false); // Background polling
-    }, 15000); // อัปเดตหน้าห้องครัวทุก 15 วินาที
+        loadKitchenOrders(false);
+    }, 15000);
 });
