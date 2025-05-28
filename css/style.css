@@ -16,7 +16,7 @@ body {
     font-size: 16px;
     line-height: 1.65;
     padding-top: 70px;  /* Adjust for fixed navbar height */
-    padding-bottom: 80px; /* Space for FAB/footer */
+    padding-bottom: 90px; /* Space for FAB/footer */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -123,7 +123,7 @@ a:hover {
     background-color: #fff;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     transition: box-shadow 0.2s ease-in-out;
-    margin-bottom: 0.85rem;
+    margin-bottom: 0.65rem; /* ลดระยะห่างระหว่างการ์ด */
     display: flex;
     flex-direction: column;
 }
@@ -131,23 +131,23 @@ a:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 .menu-card-no-image .card-body {
-    padding: 1rem; /* เพิ่ม padding ภายใน Card */
+    padding: 0.6rem 0.85rem; /* ลด padding เพื่อลดความสูง */
     display: flex;
     flex-direction: column;
-    justify-content: center; /* จัดให้อยู่กึ่งกลางแนวตั้งทั้งหมดใน card-body */
+    justify-content: center; /* จัดกึ่งกลางแนวตั้ง */
     flex-grow: 1;
-    min-height: 75px; /* กำหนดความสูงขั้นต่ำให้ card-body (ปรับค่าตามความเหมาะสม) */
+    min-height: auto; /* ให้ความสูงยืดหยุ่นตามเนื้อหา หรือกำหนดค่าน้อยๆ เช่น 60px */
 }
 .menu-card-no-image .menu-item-top-row {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* จัดให้อยู่กึ่งกลางแนวตั้งของแถวนี้ */
-    /* margin-bottom: 0.3rem; (เอาออก หรือปรับถ้ามี description) */
+    align-items: center;
+    /* margin-bottom: 0.25rem; (ถ้าไม่มี description อาจจะไม่ต้องมี) */
 }
-.menu-card-no-image .card-title { /* ชื่อเมนู */
+.menu-card-no-image .card-title {
     font-weight: 600;
     color: #111827;
-    font-size: 1.05rem;
+    font-size: 1.05rem; /* ขนาดฟอนต์ชื่อเมนู (ตามที่คุณพอใจ) */
     line-height: 1.35;
     margin-bottom: 0 !important;
     flex-grow: 1;
@@ -158,16 +158,16 @@ a:hover {
     align-items: center;
     flex-shrink: 0;
 }
-.menu-card-no-image .price { /* ราคา */
-    font-size: 1rem;
+.menu-card-no-image .price {
+    font-size: 1rem; /* ขนาดฟอนต์ราคา (ตามที่คุณพอใจ) */
     font-weight: 700;
     color: #059669;
-    margin-right: 0.6rem;
+    margin-right: 0.5rem; /* ลดระยะห่างจากปุ่ม */
     white-space: nowrap;
 }
-.menu-card-no-image .add-to-cart-btn { /* ปุ่มเพิ่มลงตะกร้า */
-    padding: 0.35rem 0.7rem;
-    font-size: 0.85rem;
+.menu-card-no-image .add-to-cart-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem; /* ขนาดฟอนต์ปุ่ม (ตามที่คุณพอใจ) */
     line-height: 1;
     border-color: #6366f1;
     color: #6366f1;
@@ -179,9 +179,9 @@ a:hover {
     color: #fff;
 }
 .menu-card-no-image .small.text-muted { /* Description */
-    font-size: 0.85rem;
-    line-height: 1.45;
-    margin-top: 0.3rem; /* มีระยะห่างถ้า description อยู่บรรทัดใหม่ */
+    font-size: 0.85rem; /* ขนาดฟอนต์ Description (ตามที่คุณพอใจ) */
+    line-height: 1.4; /* ปรับ line-height ให้กระชับ */
+    margin-top: 0.2rem; /* ลด margin-top */
     color: #6b7280;
 }
 
@@ -389,11 +389,11 @@ a:hover {
     background-color: #e5e7eb !important;
     color: #4b5563 !important;
 }
-.kitchen-order-card .list-group-item .admin-item-note {
+.kitchen-order-card .list-group-item .admin-item-note { /* ใช้ class เดียวกับ admin note */
     margin-top: 0.2rem;
     font-size: 0.85rem;
     font-weight: 500;
-    color: #c81e1e !important;
+    color: #c81e1e !important; /* สีแดงสำหรับโน้ต */
 }
 .order-item-elapsed-time {
     font-size: 0.8rem;
@@ -407,8 +407,8 @@ a:hover {
 }
 .kitchen-action-btn {
     padding: 0.35rem 0.65rem;
-    font-size: 0.8rem; /* ปรับขนาดให้สอดคล้องกับ font อื่นๆ */
-    min-width: 110px; /* ปรับตามข้อความ "รอ X วินาที" */
+    font-size: 0.8rem;
+    min-width: 110px;
     border-radius: 6px;
     font-weight: 600;
     transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
@@ -438,11 +438,11 @@ a:hover {
 /* --- 13. Admin Accordion --- */
 .admin-table-card .accordion-button {
     padding: 0.75rem 1rem;
-    font-size: 0.9rem; /* เพิ่มขนาดฟอนต์พื้นฐาน accordion */
+    font-size: 0.9rem;
     font-weight: 500;
 }
 .admin-table-card .accordion-button strong {
-    font-size: 1.05rem; /* เพิ่มขนาด "โต๊ะ X" */
+    font-size: 1.05rem;
     color: #111827;
 }
 .admin-table-card .accordion-button .badge.bg-success {
@@ -471,14 +471,14 @@ a:hover {
     box-shadow: 0 0 0 .2rem rgba(79, 70, 229, 0.25);
     border-color: rgba(79, 70, 229, 0.5);
 }
-.admin-item-note {
+.admin-item-note { /* สไตล์โน้ตใน Admin (ใช้สีแดงจาก text-danger ใน JS) */
     font-size: 0.8rem;
     font-style: italic;
     margin-top: 0.1rem;
-    color: #c81e1e !important;
+    /* color: #c81e1e !important; ถูกใส่ใน JS แล้ว */
 }
 .admin-item-status-time {
-    font-size: 0.75rem; /* เพิ่มขนาดเล็กน้อย */
+    font-size: 0.75rem;
 }
 .admin-item-status-time .fst-italic {
     color: #6b7280;
@@ -548,7 +548,7 @@ a:hover {
     padding: 1.25rem 0;
     text-align: center;
     margin-top: 2.5rem;
-    font-size: 0.85rem; /* เพิ่มขนาดฟอนต์ Footer เล็กน้อย */
+    font-size: 0.85rem;
 }
 .footer p { margin-bottom: 0; }
 
@@ -558,21 +558,21 @@ a:hover {
         padding-top: 60px;
         font-size: 15px;
     }
-    .page-header h1 { font-size: 1.5rem; } /* ปรับขนาดให้สอดคล้อง */
+    .page-header h1 { font-size: 1.5rem; }
     #user-message-container { top: 65px; max-width: 90%; }
-    .menu-card-no-image .card-title { font-size: 1rem; } /* ปรับขนาดชื่อเมนูบนมือถือ */
+    .menu-card-no-image .card-title { font-size: 1rem; }
     .menu-card-no-image .price { font-size: 0.9rem; }
-    .summary-section h3 { font-size: 1.1rem; } /* ปรับขนาด */
-    .summary-section h4 { font-size: 1rem; } /* ปรับขนาด */
+    .summary-section h3 { font-size: 1.1rem; }
+    .summary-section h4 { font-size: 1rem; }
     .admin-table-card .accordion-button { font-size: 0.85rem; }
     .admin-table-card .accordion-button .order-ids-display { max-width: 50px; }
 }
 @media (max-width: 575px) {
     .admin-table-card .accordion-button .order-ids-display { display: none; }
     .admin-table-card .accordion-button .badge.bg-success { font-size: 0.75rem; }
-    .navbar-brand-text { font-size: 1rem; } /* ปรับขนาด */
-    #nav-cart-total { font-size: 0.9rem; } /* ปรับขนาด */
+    .navbar-brand-text { font-size: 1rem; }
+    #nav-cart-total { font-size: 0.9rem; }
     #category-nav-pills .nav-link { font-size: 0.8rem; }
-    .menu-card-no-image .card-title { font-size: 1rem; } /* ปรับขนาดให้ใหญ่ขึ้นอีกบนจอเล็กสุด */
-    .kitchen-action-btn { min-width: 95px; font-size: 0.8rem;} /* ปรับขนาด */
+    .menu-card-no-image .card-title { font-size: 1rem; }
+    .kitchen-action-btn { min-width: 95px; font-size: 0.8rem;}
 }
