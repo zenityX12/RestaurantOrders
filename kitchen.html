@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="th"> 
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="kitchen-page-title">ห้องครัว - รายการสั่งอาหาร</title> 
+    <title>ห้องครัว - รายการสั่งอาหาร</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -16,24 +15,14 @@
         .navbar {
             border-bottom: 1px solid #e0e0e0;
         }
-        /* สไตล์สำหรับฟอนต์พม่า ถ้า Noto Sans Myanmar ถูกใช้ */
-        body.lang-my {
-            font-family: 'Noto Sans Myanmar', 'Sarabun', sans-serif;
-        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg fixed-top bg-light shadow-sm">
         <div class="container">
             <a class="navbar-brand mb-0" href="#">
-                <span class="navbar-brand-text" id="kitchen-nav-title">ระบบจัดการร้านอาหาร (ห้องครัว)</span>
+                <span class="navbar-brand-text" id="config-restaurant-name-nav-kitchen">ระบบจัดการร้านอาหาร (ห้องครัว)</span>
             </a>
-            <div class="ms-auto">
-                <div class="btn-group" role="group" aria-label="Language switcher">
-                    <button type="button" class="btn btn-sm btn-outline-secondary lang-switch-btn" data-lang="th">ไทย</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary lang-switch-btn" data-lang="my">မြန်မာ</button>
-                </div>
-            </div>
         </div>
     </nav>
 
@@ -47,14 +36,14 @@
 
     <div class="container pt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h4 mb-0" id="kitchen-orders-header">รายการอาหารที่ต้องเตรียม</h2>
+            <h2 class="h4 mb-0">รายการอาหารที่ต้องเตรียม</h2>
             <button id="refresh-kitchen-orders-btn" class="btn btn-info">
-                <i class="bi bi-arrow-clockwise btn-icon"></i><span id="kitchen-refresh-button-text">รีเฟรชรายการ</span>
+                <i class="bi bi-arrow-clockwise btn-icon"></i>รีเฟรชรายการ
             </button>
         </div>
         <div id="kitchen-orders-container" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <p id="kitchen-loading-placeholder" class="text-center text-muted col-12">กำลังโหลดรายการอาหาร...</p>
-        </div>
+            </div>
     </div>
 
     <footer class="footer mt-5">
@@ -64,71 +53,39 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/config.js"></script>
     <script src="js/site-config.js"></script>
-
-    <script id="language-script-loader">
-        function loadLanguageFile(lang) {
-            // ลบ script เก่า (ถ้ามี) เพื่อป้องกันการโหลดซ้ำซ้อน
-            const oldLangScript = document.getElementById('dynamic-lang-script');
-            if (oldLangScript) {
-                oldLangScript.remove();
-            }
-            // สร้าง script tag ใหม่
-            const langScript = document.createElement('script');
-            langScript.id = 'dynamic-lang-script';
-            langScript.src = `js/lang/${lang}.js`;
-            langScript.onload = function() {
-                console.log(`${lang.toUpperCase()} language file loaded.`);
-                // เมื่อไฟล์ภาษาโหลดเสร็จ ให้เรียกฟังก์ชันเริ่มต้นของ kitchen.js (ถ้าแยกไว้)
-                // หรือให้ kitchen.js เช็ค window.KITCHEN_LANG_XX เอง
-                if (typeof initializeKitchenPage === 'function') {
-                    initializeKitchenPage();
-                }
-            };
-            langScript.onerror = function() {
-                console.error(`Failed to load ${lang}.js. Defaulting to Thai.`);
-                if (lang !== 'th') { // ถ้าโหลดภาษาอื่นพลาด ให้ลองโหลดไทย
-                    loadLanguageFile('th');
-                } else { // ถ้าโหลดไทยก็ยังพลาดอีก
-                     if (typeof initializeKitchenPage === 'function') {
-                        initializeKitchenPage(); // เริ่มต้นด้วยค่า fallback ในโค้ด
-                    }
-                }
-            };
-            document.head.appendChild(langScript);
-            // ตั้งค่า lang attribute ให้ body เพื่อใช้ใน CSS (ถ้าต้องการ)
-            document.body.className = `lang-${lang}`;
-            document.documentElement.lang = lang === 'my' ? 'my' : lang; // ตั้ง lang ของ html tag
-        }
-
-        let preferredLang = localStorage.getItem('kitchenDisplayLang') || 'th';
-        if (preferredLang !== 'th' && preferredLang !== 'my') {
-            preferredLang = 'th';
-        }
-        loadLanguageFile(preferredLang);
-    </script>
-
     <script src="js/shared.js"></script>
     <script src="js/kitchen.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // ย้าย Logic การตั้งค่า Site Config มาไว้ใน kitchen.js หรือ main.js จะดีกว่า
-            // เพื่อให้ทำงานหลังจากไฟล์ภาษาโหลดเสร็จและ KITCHEN_LANG_XX พร้อมใช้งาน
-            // ส่วนนี้จะถูกจัดการใน kitchen.js โดยใช้ฟังก์ชัน _t()
+            // ตั้งค่า Title และ Footer จาก site-config.js (ถ้ามี)
+            if (window.SITE_CONFIG) {
+                const restaurantName = window.SITE_CONFIG.restaurantName || "ร้านอาหาร";
+                const kitchenPageTitleText = window.SITE_CONFIG.kitchenPageTitle || "ห้องครัว - จัดการออเดอร์";
+                const footerTxt = window.SITE_CONFIG.footerText || "สงวนลิขสิทธิ์";
 
+                document.title = `${kitchenPageTitleText} | ${restaurantName}`;
+
+                const navKitchenTitleEl = document.getElementById('config-restaurant-name-nav-kitchen');
+                if (navKitchenTitleEl && window.SITE_CONFIG.kitchenPageTitle) {
+                    navKitchenTitleEl.textContent = kitchenPageTitleText;
+                } else if (navKitchenTitleEl && navKitchenTitleEl.textContent.includes("ระบบจัดการร้านอาหาร")) {
+                     navKitchenTitleEl.textContent = "ระบบจัดการร้านอาหาร (ห้องครัว)";
+                }
+
+
+                const footerRestaurantNameEl = document.getElementById('config-restaurant-name-footer-kitchen');
+                if (footerRestaurantNameEl) footerRestaurantNameEl.textContent = restaurantName;
+
+                const footerTextEl = document.getElementById('config-footer-text-kitchen');
+                if (footerTextEl) footerTextEl.textContent = footerTxt;
+            } else {
+                 const navDefaultTitleEl = document.getElementById('config-restaurant-name-nav-kitchen');
+                 if(navDefaultTitleEl && navDefaultTitleEl.textContent.includes("ระบบจัดการร้านอาหาร")) {
+                    navDefaultTitleEl.textContent = "ระบบจัดการร้านอาหาร (ห้องครัว)";
+                 }
+            }
             const currentYearElKitchen = document.getElementById('current-year-kitchen');
             if (currentYearElKitchen) currentYearElKitchen.textContent = new Date().getFullYear();
-
-            // Event listeners สำหรับปุ่มสลับภาษา
-            document.querySelectorAll('.lang-switch-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const lang = this.dataset.lang;
-                    localStorage.setItem('kitchenDisplayLang', lang);
-                    // โหลดหน้าใหม่พร้อมภาษาใหม่ หรือโหลดไฟล์ภาษาแล้ว re-render หน้า (ซับซ้อนกว่า)
-                    // วิธีง่ายสุดคือ reload หน้า:
-                    window.location.search = `?lang=${lang}`; // หรือ reload ทั้งหน้าถ้าไม่มี parameter อื่น
-                    // หรือถ้าไม่ reload: loadLanguageFile(lang); แล้ว kitchen.js ต้องมีฟังก์ชัน re-render UI
-                });
-            });
         });
     </script>
 </body>
