@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ห้องครัว - รายการสั่งอาหาร</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>ห้องครัว - รายการสั่งอาหาร</title> <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* (Optional) ถ้าต้องการสไตล์เฉพาะหน้าครัวเพิ่มเติม */
-        .navbar { /* ทำให้ Navbar ของครัว เหมือนกับหน้าอื่นๆ */
+        /* สไตล์เพิ่มเติมเฉพาะหน้าครัว (ถ้ามี) */
+        .navbar {
             border-bottom: 1px solid #e0e0e0;
         }
         body {
@@ -35,9 +34,9 @@
 
     <div id="user-message-container"></div>
 
-    <div class="container pt-4"> {/* เพิ่ม pt-4 (padding-top) เพื่อไม่ให้เนื้อหาชิด Navbar เกินไป */}
+    <div class="container pt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h4 mb-0">รายการอาหารที่ต้องเตรียม</h2> {/* เพิ่มหัวข้อให้ชัดเจน */}
+            <h2 class="h4 mb-0">รายการอาหารที่ต้องเตรียม</h2>
             <button id="refresh-kitchen-orders-btn" class="btn btn-info">
                 <i class="bi bi-arrow-clockwise btn-icon"></i>รีเฟรชรายการ
             </button>
@@ -53,35 +52,44 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/config.js"></script>
-    <script src="js/site-config.js"></script> {/* โหลด site-config ถ้าต้องการใช้ชื่อร้าน */}
-    <script src="js/shared.js"></script>
+    <script src="js/site-config.js"></script> <script src="js/shared.js"></script>
     <script src="js/kitchen.js"></script>
     <script>
         // Script สำหรับโหลดค่าจาก SITE_CONFIG มาแสดงผล (ถ้ามี)
         document.addEventListener('DOMContentLoaded', function() {
             if (window.SITE_CONFIG) {
-                const restaurantName = window.SITE_CONFIG.restaurantName || "ร้านอาหาร"; // ใช้ชื่อร้านหลัก
-                const kitchenPageTitle = window.SITE_CONFIG.kitchenPageTitle || "ระบบจัดการร้านอาหาร (ห้องครัว)"; // (Optional) อาจจะเพิ่มใน site-config.js
+                const restaurantName = window.SITE_CONFIG.restaurantName || "ร้านอาหาร";
+                const kitchenPageTitleText = window.SITE_CONFIG.kitchenPageTitle || "ห้องครัว - จัดการออเดอร์"; // (Optional) property ใน site-config.js
                 const footerTxt = window.SITE_CONFIG.footerText || "สงวนลิขสิทธิ์";
 
-                document.title = `${kitchenPageTitle} - ${restaurantName}`;
+                // ตั้งค่า Title ของหน้าเว็บ
+                document.title = `${kitchenPageTitleText} | ${restaurantName}`;
 
+                // ตั้งค่าข้อความใน Navbar (ถ้าต้องการให้ดึงจาก config)
                 const navKitchenTitleEl = document.getElementById('config-restaurant-name-nav-kitchen');
-                if (navKitchenTitleEl) navKitchenTitleEl.textContent = kitchenPageTitle;
+                if (navKitchenTitleEl && window.SITE_CONFIG.kitchenPageTitle) { // ตรวจสอบว่ามี kitchenPageTitle ใน config หรือไม่
+                    navKitchenTitleEl.textContent = kitchenPageTitleText;
+                } else if (navKitchenTitleEl && navKitchenTitleEl.textContent === "ระบบจัดการร้านอาหาร") {
+                    // ถ้าไม่ได้ตั้งค่าใน config และข้อความปัจจุบันเป็นค่า default กว้างๆ ให้เปลี่ยนเป็นค่าเฉพาะหน้านี้
+                    navKitchenTitleEl.textContent = "ระบบจัดการร้านอาหาร (ห้องครัว)";
+                }
 
+
+                // ตั้งค่าข้อความใน Footer
                 const footerRestaurantNameEl = document.getElementById('config-restaurant-name-footer-kitchen');
                 if (footerRestaurantNameEl) footerRestaurantNameEl.textContent = restaurantName;
 
                 const footerTextEl = document.getElementById('config-footer-text-kitchen');
                 if (footerTextEl) footerTextEl.textContent = footerTxt;
             } else {
-                // ถ้าไม่มี SITE_CONFIG ก็อาจจะตั้งค่า default title
-                 document.title = "ห้องครัว - รายการสั่งอาหาร";
-                 const navDefaultTitleEl = document.getElementById('config-restaurant-name-nav-kitchen');
-                 if(navDefaultTitleEl && navDefaultTitleEl.textContent === "ระบบจัดการร้านอาหาร") { // ป้องกันการเขียนทับถ้าตั้งค่าใน HTML โดยตรงแล้ว
-                    navDefaultTitleEl.textContent = "ระบบจัดการร้านอาหาร (ห้องครัว)";
+                // ถ้าไม่มี SITE_CONFIG ก็อาจจะตั้งค่า default title สำหรับหน้านี้
+                 const defaultNavTitleEl = document.getElementById('config-restaurant-name-nav-kitchen');
+                 if(defaultNavTitleEl && defaultNavTitleEl.textContent === "ระบบจัดการร้านอาหาร") {
+                    defaultNavTitleEl.textContent = "ระบบจัดการร้านอาหาร (ห้องครัว)";
                  }
+                 // document.title = "ห้องครัว - รายการสั่งอาหาร"; // title เริ่มต้นถ้าไม่มี config
             }
+            // ตั้งค่าปีปัจจุบันใน Footer
             const currentYearElKitchen = document.getElementById('current-year-kitchen');
             if (currentYearElKitchen) currentYearElKitchen.textContent = new Date().getFullYear();
         });
