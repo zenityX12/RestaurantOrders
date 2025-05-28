@@ -396,3 +396,13 @@ body {
 body {
     padding-bottom: 90px; /* เพิ่ม padding ด้านล่างให้ body (56px ของ FAB + 20px margin + safety) */
 }
+
+/* css/style.css (เพิ่มสไตล์สำหรับโน้ตในหน้าครัว) */
+
+.kitchen-order-card .list-group-item .text-danger.fst-italic {
+    /* background-color: #fff3cd; /* สีเหลืองอ่อนๆ */
+    /* padding: 0.25rem 0.5rem; */
+    /* border-radius: 0.2rem; */
+    margin-top: 0.25rem; /* เพิ่มระยะห่างด้านบนเล็กน้อย */
+    font-size: 0.85rem; /* ปรับขนาดฟอนต์ของโน้ต */
+}
