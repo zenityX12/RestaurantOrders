@@ -58,17 +58,20 @@
     <script src="js/shared.js"></script>
 
     <script src="js/lang/my.js" id="language-script"></script>
-    <script src="js/kitchen-my.js"></script> 
+    
+    <script src="js/kitchen-my.js"></script>
 
     <script>
-        // Script นี้จะจัดการแค่การตั้งค่า static text ที่อาจจะดึงจาก site-config
-        // การ initialize หลักของหน้าครัวจะอยู่ใน kitchen-my.js
         document.addEventListener('DOMContentLoaded', function() {
-            function applyStaticConfig() {
-                if (window.SITE_CONFIG) { // ไม่ต้องรอ KITCHEN_LANG_MY ที่นี่ เพราะ kitchen-my.js จะจัดการ
-                    const restaurantName = window.SITE_CONFIG.restaurantNameMyanmar || window.SITE_CONFIG.restaurantName || "သင်၏စားသောက်ဆိုင်အမည်";
-                    // Title และ Nav title จะถูกตั้งค่าใน kitchen-my.js โดยใช้ _t()
-                    const footerTxt = window.SITE_CONFIG.footerTextMyanmar || window.SITE_CONFIG.footerText || "All rights reserved";
+            const langScriptTag = document.getElementById('language-script');
+
+            function initializePage() {
+                // ตั้งค่าข้อความ Static จาก Site Config (ถ้ามี)
+                if (window.SITE_CONFIG) {
+                    // ใช้ KITCHEN_LANG_MY สำหรับ fallback text ภาษาพม่า
+                    const MY_LANG = window.KITCHEN_LANG_MY || {};
+                    const restaurantName = window.SITE_CONFIG.restaurantNameMyanmar || window.SITE_CONFIG.restaurantName || MY_LANG.defaultRestaurantName || "သင်၏စားသောက်ဆိုင်အမည်";
+                    const footerTxt = window.SITE_CONFIG.footerTextMyanmar || window.SITE_CONFIG.footerText || MY_LANG.defaultFooterText || "All rights reserved";
 
                     const footerRestaurantNameEl = document.getElementById('config-restaurant-name-footer-kitchen');
                     if (footerRestaurantNameEl) footerRestaurantNameEl.textContent = restaurantName;
@@ -78,28 +81,32 @@
                 }
                 const currentYearElKitchen = document.getElementById('current-year-kitchen');
                 if (currentYearElKitchen) currentYearElKitchen.textContent = new Date().getFullYear();
+
+                // เรียกฟังก์ชันหลักใน kitchen-my.js
+                if (typeof initializeKitchenPage === "function") {
+                    initializeKitchenPage();
+                } else {
+                    console.error("initializeKitchenPage function is not defined in js/kitchen-my.js");
+                }
             }
 
-            const langScriptTag = document.getElementById('language-script');
             if (langScriptTag) {
-                if (langScriptTag.dataset.loaded === "true") { // ถ้าไฟล์ภาษาโหลดไปแล้ว (กรณีที่ kitchen-my.js อาจจะ set ไว้)
-                    applyStaticConfig();
-                    if (typeof initializeKitchenPage === "function") initializeKitchenPage(); // เรียก init หลักของ kitchen-my.js
+                // ตรวจสอบว่า script โหลดเสร็จหรือยัง (บางเบราว์เซอร์อาจจะ execute script ต่อไปเลย)
+                // หรือ KITCHEN_LANG_MY พร้อมใช้งานหรือยัง
+                if (window.KITCHEN_LANG_MY) {
+                    console.log("KITCHEN_LANG_MY already loaded, initializing page.");
+                    initializePage();
                 } else {
-                    langScriptTag.addEventListener('load', function() {
-                        langScriptTag.dataset.loaded = "true"; // ทำเครื่องหมายว่าโหลดแล้ว
-                        applyStaticConfig();
-                        if (typeof initializeKitchenPage === "function") initializeKitchenPage(); // เรียก init หลักของ kitchen-my.js
-                    });
+                    console.log("KITCHEN_LANG_MY not loaded yet, adding event listener to language script tag.");
+                    langScriptTag.addEventListener('load', initializePage);
                     langScriptTag.addEventListener('error', function() {
-                        console.error("Failed to load my.js for static text. Using fallbacks.");
-                        applyStaticConfig(); // ใช้ fallback text
-                        if (typeof initializeKitchenPage === "function") initializeKitchenPage(); // พยายาม init ต่อ
+                        console.error("Failed to load my.js. Page initialization might fail or use fallbacks.");
+                        initializePage(); // พยายาม initialize ด้วย fallback
                     });
                 }
-            } else { // ถ้าไม่มี tag โหลดภาษา (ไม่ควรเกิด) ก็ลองเรียกเลย
-                applyStaticConfig();
-                if (typeof initializeKitchenPage === "function") initializeKitchenPage();
+            } else {
+                console.error("Language script tag not found.");
+                initializePage(); // พยายาม initialize ด้วย fallback
             }
         });
     </script>
