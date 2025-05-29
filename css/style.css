@@ -11,37 +11,39 @@
 
 body {
     font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    background-color: #f9fafb;
-    color: #374151;
-    font-size: 16px;
-    line-height: 1.65;
-    padding-top: 70px;
-    padding-bottom: 90px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    background-color: #f9fafb; /* Slightly off-white background */
+    color: #374151;    /* Dark gray for primary text */
+    font-size: 16px;     /* Base font size */
+    line-height: 1.65;   /* Improved line height for readability */
+    padding-top: 65px;  /* Adjust for fixed navbar height */
+    padding-bottom: 80px; /* Space for FAB/footer */
+    -webkit-font-smoothing: antialiased; /* Smoother fonts on WebKit browsers */
+    -moz-osx-font-smoothing: grayscale;  /* Smoother fonts on Firefox */
 }
 
 /* --- 2. Typography --- */
 h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
-    color: #111827;
+    font-weight: 600; /* Semi-bold for headings */
+    color: #111827;    /* Even darker gray for strong headings */
     line-height: 1.3;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.75rem; /* Consistent bottom margin for headings */
 }
-h1 { font-size: 1.875rem; }
-h2 { font-size: 1.5rem; }
-h3 { font-size: 1.375rem; }
-h4 { font-size: 1.2rem; }
+
+h1 { font-size: 1.875rem; } /* ~30px */
+h2 { font-size: 1.5rem; }   /* ~24px */
+h3 { font-size: 1.375rem; }  /* ~22px */
+h4 { font-size: 1.2rem; }   /* ~19px */
 small, .small {
-    font-size: 0.875em;
+    font-size: 0.875em; /* Relative to parent */
 }
+
 a {
-    color: #4f46e5;
+    color: #4f46e5; /* Primary color for links */
     text-decoration: none;
     transition: color 0.2s ease;
 }
 a:hover {
-    color: #3730a3;
+    color: #3730a3; /* Darker shade on hover */
 }
 
 /* --- 3. Navbar --- */
@@ -49,22 +51,24 @@ a:hover {
     background-color: #ffffff;
     border-bottom: 1px solid #e5e7eb;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-    padding-top: 0.6rem;
-    padding-bottom: 0.6rem;
+    padding-top: 0.5rem; /* ลด padding บน-ล่างของ Navbar */
+    padding-bottom: 0.5rem;
 }
 .navbar-brand-text {
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1rem; /* ลดขนาดฟอนต์ชื่อร้าน/ระบบ ใน Navbar */
     color: #1f2937;
 }
-#nav-cart-total {
+#nav-cart-total { /* Customer page navbar total */
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.85rem; /* ลดขนาดฟอนต์ยอดรวมใน Navbar */
     color: #059669;
 }
-.navbar-text {
+.navbar-text { /* ข้อความทั่วไปใน Navbar (เช่น ยอดรวม) */
     color: #4b5563;
-    font-size: 0.95rem;
+    font-size: 0.85rem; /* ลดขนาดฟอนต์ */
+    padding-top: .25rem;
+    padding-bottom: .25rem;
 }
 #navbar-cart-icon-container.cart-shake {
     animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
@@ -81,7 +85,7 @@ a:hover {
     text-align: center;
 }
 .page-header h1 {
-    font-size: 1.6rem;
+    font-size: 1.6rem; /* ขนาดตามที่คุณพอใจ */
     font-weight: 500;
     color: white;
 }
@@ -127,7 +131,7 @@ a:hover {
     background-color: #fff;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     transition: box-shadow 0.2s ease-in-out;
-    margin-bottom: 0.65rem;
+    margin-bottom: 0.65rem; /* ลดระยะห่างระหว่างการ์ด */
     display: flex;
     flex-direction: column;
 }
@@ -135,12 +139,12 @@ a:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 .menu-card-no-image .card-body {
-    padding: 0.6rem 0.85rem;
+    padding: 0.6rem 0.85rem; /* ลด padding เพื่อลดความสูง */
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: center; /* จัดกึ่งกลางแนวตั้ง */
     flex-grow: 1;
-    min-height: auto;
+    min-height: auto; /* ให้ความสูงยืดหยุ่นตามเนื้อหา */
 }
 .menu-card-no-image .menu-item-top-row {
     display: flex;
@@ -150,7 +154,7 @@ a:hover {
 .menu-card-no-image .card-title {
     font-weight: 600;
     color: #111827;
-    font-size: 1.05rem;
+    font-size: 1.05rem; /* ขนาดฟอนต์ชื่อเมนู (ตามที่คุณพอใจ) */
     line-height: 1.35;
     margin-bottom: 0 !important;
     flex-grow: 1;
@@ -162,23 +166,23 @@ a:hover {
     flex-shrink: 0;
 }
 .menu-card-no-image .price {
-    font-size: 1rem;
+    font-size: 1rem; /* ขนาดฟอนต์ราคา (ตามที่คุณพอใจ) */
     font-weight: 700;
     color: #059669;
-    margin-right: 0.5rem;
+    margin-right: 0.5rem; /* ลดระยะห่างจากปุ่ม */
     white-space: nowrap;
 }
 .menu-card-no-image .add-to-cart-btn {
     padding: 0.3rem 0.6rem;
-    font-size: 0.85rem;
+    font-size: 0.85rem; /* ขนาดฟอนต์ปุ่ม (ตามที่คุณพอใจ) */
     line-height: 1;
     border-color: #6366f1;
     color: #6366f1;
     border-radius: 6px;
     font-weight: 500;
 }
-.menu-card-no-image .add-to-cart-btn i.bi-plus-circle-fill { /* ทำให้ไอคอนบวกเด่นขึ้น */
-    font-size: 1.1em; /* ปรับขนาดไอคอนบวก */
+.menu-card-no-image .add-to-cart-btn i.bi-plus-circle-fill {
+    font-size: 1.1em;
 }
 .menu-card-no-image .add-to-cart-btn:hover {
     background-color: #6366f1;
@@ -196,8 +200,8 @@ a:hover {
 .btn {
     border-radius: 6px;
     font-weight: 500;
-    font-size: 0.95rem;
-    padding: 0.55rem 1.1rem;
+    font-size: 0.9rem; /* ลดขนาดฟอนต์ปุ่มทั่วไปลงเล็กน้อย */
+    padding: 0.5rem 1rem; /* ลด padding ปุ่มทั่วไปลงเล็กน้อย */
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
@@ -232,7 +236,6 @@ a:hover {
     background-color: #dc2626;
     border-color: #dc2626;
 }
-/* ปุ่มล้างตะกร้า */
 .btn-outline-danger {
     color: #ef4444;
     border-color: #ef4444;
@@ -241,7 +244,6 @@ a:hover {
     background-color: #ef4444;
     color: #fff;
 }
-
 .btn-info {
     background-color: #3b82f6;
     border-color: #3b82f6;
@@ -288,7 +290,7 @@ a:hover {
     color: #374151;
 }
 
-/* --- 9. Loading Spinner (เหมือนเดิม) --- */
+/* --- 9. Loading Spinner --- */
 #loading-spinner {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(255, 255, 255, 0.9);
@@ -299,7 +301,7 @@ a:hover {
     color: #4f46e5;
 }
 
-/* --- 10. User Message Container (Alerts) (เหมือนเดิม) --- */
+/* --- 10. User Message Container (Alerts) --- */
 #user-message-container {
     position: fixed; top: 75px; right: 15px; left: 15px;
     z-index: 1055; width: auto; max-width: 380px;
@@ -357,25 +359,163 @@ a:hover {
     border-radius: 6px;
     padding: 0.85rem 1rem;
 }
-#current-order-items-display .fw-bold {
+#current-order-items-display .fw-bold { /* ชื่อสินค้าในรายการที่สั่งไปแล้ว */
     font-size: 0.95rem;
 }
-#current-order-items-display .cart-item-note {
-    color: #c81e1e;
+#current-order-items-display .cart-item-note { /* โน้ตในรายการที่สั่งไปแล้ว */
+    color: #c81e1e; /* สีแดงสำหรับโน้ต */
     font-weight: 500;
     font-size: 0.85rem;
 }
-#current-order-items-display .text-muted.d-block {
+#current-order-items-display .text-muted.d-block { /* สถานะในรายการที่สั่งไปแล้ว */
     font-size: 0.8rem;
     margin-top: 0.1rem;
     color: #4b5563 !important;
 }
 
-/* --- 12. Kitchen Order Card (เหมือนเดิม) --- */
-/* ... */
+/* --- 12. Kitchen Order Card --- */
+.kitchen-order-card {
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    background-color: #fff;
+}
+.kitchen-order-card.status-preparing {
+    border-left: 4px solid #f59e0b;
+}
+.kitchen-order-card .card-header {
+    font-weight: 600;
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.85rem;
+    padding: 0.75rem 1rem;
+}
+.kitchen-order-card .card-header strong {
+    font-size: 1rem;
+}
+.kitchen-order-card .list-group-item {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+.kitchen-order-card .list-group-item:last-child { border-bottom: none; }
+.kitchen-order-card .list-group-item h6 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+.kitchen-order-card .list-group-item .badge.bg-secondary {
+    font-size: 0.8rem;
+    font-weight: 500;
+    background-color: #e5e7eb !important;
+    color: #4b5563 !important;
+}
+.kitchen-order-card .list-group-item .admin-item-note {
+    margin-top: 0.2rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #c81e1e !important;
+}
+.order-item-elapsed-time {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-top: 0.15rem;
+}
+.order-item-elapsed-time.text-success {
+    color: #059669 !important;
+    font-style: italic;
+    font-weight: 500;
+}
+.kitchen-action-btn {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+    min-width: 110px;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    border-width: 1px; border-style: solid;
+}
+.kitchen-action-btn:not(.item-served-button) {
+    /* Colors are set by JS dynamically */
+}
+.kitchen-action-btn.item-served-button,
+.kitchen-action-btn.btn-success {
+    background-color: #10b981 !important;
+    border-color: #10b981 !important;
+    color: #fff !important;
+    opacity: 1;
+}
+.kitchen-action-btn.btn-success.disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+.kitchen-action-btn i.bi-hourglass-split,
+.kitchen-action-btn i.bi-check-circle-fill {
+    font-size: 0.8em;
+    margin-left: 0.25rem;
+    vertical-align: -0.05em;
+}
 
-/* --- 13. Admin Accordion (เหมือนเดิม) --- */
-/* ... */
+/* --- 13. Admin Accordion --- */
+.admin-table-card .accordion-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.admin-table-card .accordion-button strong {
+    font-size: 1.05rem;
+    color: #111827;
+}
+.admin-table-card .accordion-button .badge.bg-success {
+    font-size: 0.85rem;
+    padding: 0.35em 0.6em;
+    font-weight: 600;
+    background-color: #059669 !important;
+}
+.admin-table-card .accordion-button .order-ids-display {
+    font-size: 0.7rem;
+    margin-left: 0.5rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-width: 90px;
+    flex-shrink: 1;
+    color: #6b7280;
+}
+.admin-table-card .accordion-button:not(.collapsed) {
+    color: #fff;
+    background-color: #4338ca; /* Primary Darker for Admin Active Accordion */
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.075);
+}
+.admin-table-card .accordion-button:not(.collapsed)::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+.admin-table-card .accordion-button:focus {
+    box-shadow: 0 0 0 .2rem rgba(79, 70, 229, 0.25);
+    border-color: rgba(79, 70, 229, 0.5);
+}
+.admin-item-note {
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-top: 0.1rem;
+    color: #c81e1e !important;
+}
+.admin-item-status-time {
+    font-size: 0.75rem;
+}
+.admin-item-status-time .fst-italic {
+    color: #6b7280;
+}
+.list-group-item.text-muted-cancelled {
+    background-color: #f3f4f6;
+}
+.list-group-item.text-muted-cancelled .fw-bold,
+.list-group-item.text-muted-cancelled .admin-item-status-time,
+.list-group-item.text-muted-cancelled .text-danger.admin-item-note strong,
+.list-group-item.text-muted-cancelled .text-danger.admin-item-note {
+    color: #9ca3af !important;
+    text-decoration: line-through;
+}
+.list-group-item.text-muted-cancelled .badge {
+    background-color: #e5e7eb !important;
+    color: #9ca3af !important;
+    text-decoration: line-through;
+}
 
 /* --- 14. Floating Action Button (FAB) (Customer Page) --- */
 .scroll-to-cart-btn {
@@ -388,7 +528,7 @@ a:hover {
     padding: 0; display: inline-flex; align-items: center; justify-content: center;
     border-radius: 50%;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: transform 0.1s ease-in-out; /* สำหรับ animation สั่น */
+    transition: transform 0.1s ease-in-out;
 }
 .scroll-to-cart-btn:hover {
     background-color: #4338ca;
@@ -409,16 +549,12 @@ a:hover {
     font-weight: bold;
     min-width: 22px;
     min-height: 22px;
-    display: flex; /* ใช้ flex เพื่อจัดตัวเลขให้อยู่กึ่งกลาง badge */
+    display: flex;
     align-items: center;
     justify-content: center;
 }
-/* Animation สำหรับตะกร้าสั่น */
 .cart-shake {
     animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
-    /* transform: translate3d(0, 0, 0); */ /* ไม่จำเป็นถ้า animation จัดการ */
-    /* backface-visibility: hidden; */
-    /* perspective: 1000px; */
 }
 @keyframes shake {
     10%, 90% { transform: translate3d(-1px, 0, 0); }
@@ -429,7 +565,7 @@ a:hover {
 
 /* --- 15. Item Note Modal & Confirm Order Modal (Customer Page) --- */
 #item-note-modal .modal-body textarea,
-#confirm-order-modal .modal-body textarea /* ถ้ามี textarea ใน confirm modal */ {
+#confirm-order-modal .modal-body textarea {
     min-height: 70px;
     font-size: 0.95rem;
     border-color: #d1d5db;
@@ -445,13 +581,13 @@ a:hover {
     padding: 0.75rem 1rem;
     border-color: #e5e7eb;
 }
-#confirm-order-modal .modal-body ul { /* สำหรับรายการสรุปใน modal ยืนยัน */
-    max-height: 250px; /* ลดความสูงลงเล็กน้อย */
+#confirm-order-modal .modal-body ul {
+    max-height: 250px;
     overflow-y: auto;
-    padding-left: 0; /* ลบ padding เริ่มต้นของ ul */
+    padding-left: 0;
 }
 #confirm-order-modal .modal-body .list-group-item {
-    border: none; /* ลบเส้นขอบของ list-group-item ใน modal */
+    border: none;
     padding-left: 0;
     padding-right: 0;
 }
@@ -463,6 +599,52 @@ a:hover {
 }
 
 
-/* --- 16. Footer (เหมือนเดิม) --- */
-/* --- 17. Responsive Adjustments (เหมือนเดิม) --- */
-/* ... (Media queries เหมือนเดิม) ... */
+/* --- 16. Footer --- */
+.footer {
+    background-color: #1f2937;
+    color: #9ca3af;
+    padding: 1.25rem 0;
+    text-align: center;
+    margin-top: 2.5rem;
+    font-size: 0.85rem;
+}
+.footer p { margin-bottom: 0; }
+
+/* --- 17. Responsive Adjustments --- */
+@media (max-width: 768px) {
+    body {
+        padding-top: 60px;
+        font-size: 15px;
+    }
+    .page-header h1 { font-size: 1.5rem; }
+    #user-message-container { top: 65px; max-width: 90%; }
+    .menu-card-no-image .card-title { font-size: 1rem; }
+    .menu-card-no-image .price { font-size: 0.9rem; }
+    .summary-section h3 { font-size: 1.1rem; }
+    .summary-section h4 { font-size: 1rem; }
+    .admin-table-card .accordion-button { font-size: 0.85rem; }
+    .admin-table-card .accordion-button .order-ids-display { max-width: 50px; }
+    .scroll-to-cart-btn {
+        width: 50px;
+        height: 50px;
+        bottom: 15px;
+        right: 15px;
+    }
+    .scroll-to-cart-btn i {
+        font-size: 1.4rem;
+    }
+    #fab-cart-count {
+        top: -3px;
+        right: -3px;
+        padding: 0.2em 0.4em;
+    }
+}
+@media (max-width: 575px) {
+    .admin-table-card .accordion-button .order-ids-display { display: none; }
+    .admin-table-card .accordion-button .badge.bg-success { font-size: 0.75rem; }
+    .navbar-brand-text { font-size: 1rem; }
+    #nav-cart-total { font-size: 0.9rem; }
+    #category-nav-pills .nav-link { font-size: 0.8rem; }
+    .menu-card-no-image .card-title { font-size: 1rem; }
+    .kitchen-action-btn { min-width: 95px; font-size: 0.8rem;}
+}
