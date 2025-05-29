@@ -16,11 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartItemsDisplay = document.getElementById('cart-items-display');
     const cartTotalSummaryEl = document.getElementById('cart-total-summary');
     const cartItemCountSummaryEl = document.getElementById('cart-item-count-summary');
-    const submitOrderBtn = document.getElementById('submit-order-btn');
+    // const submitOrderBtn = document.getElementById('submit-order-btn'); // ปุ่มเดิม ถูกแทนที่ด้วยปุ่มเปิด Modal
+    const openConfirmOrderModalBtn = document.getElementById('open-confirm-order-modal-btn'); // ปุ่มใหม่สำหรับเปิด Modal
+    const clearCartBtn = document.getElementById('clear-cart-btn');
+
 
     // DOM Elements for Navbar Cart Info
     const navCartTotalEl = document.getElementById('nav-cart-total');
     const fabCartCountEl = document.getElementById('fab-cart-count');
+    const fabCartButton = document.getElementById('scroll-to-cart-fab');
+    const navbarCartIconContainer = document.getElementById('navbar-cart-icon-container');
+
 
     // DOM Elements for Current Order
     const currentOrderItemsDisplay = document.getElementById('current-order-items-display');
@@ -38,16 +44,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalItemNoteTextareaEl = document.getElementById('modal-item-note-textarea');
     const saveItemNoteBtn = document.getElementById('save-item-note-btn');
 
+    // DOM Elements for Confirm Order Modal
+    const confirmOrderModalEl = document.getElementById('confirm-order-modal');
+    const confirmOrderModalInstance = confirmOrderModalEl ? new bootstrap.Modal(confirmOrderModalEl) : null;
+    const modalTableNumberEl = document.getElementById('modal-table-number');
+    const modalOrderSummaryItemsEl = document.getElementById('modal-order-summary-items');
+    const modalOrderTotalEl = document.getElementById('modal-order-total');
+    const submitOrderFinalBtn = document.getElementById('submit-order-final-btn');
+
+
     let menuData = [];
     let cart = [];
     const CART_STORAGE_KEY_PREFIX = 'restaurant_cart_table_';
     let cartStorageKey = '';
     let categoriesInOrder = [];
-    let elapsedTimeIntervalId = null; // For kitchen page timer
 
     if (!tableNumber) {
         showUserMessage("ไม่พบหมายเลขโต๊ะ! กรุณาสแกน QR Code ที่โต๊ะของท่านอีกครั้ง", "danger");
         if(menuLoadingPlaceholder) menuLoadingPlaceholder.textContent = "ข้อผิดพลาด: ไม่พบหมายเลขโต๊ะ";
+        if(openConfirmOrderModalBtn) openConfirmOrderModalBtn.disabled = true;
+        if(clearCartBtn) clearCartBtn.disabled = true;
         return;
     }
 
@@ -55,6 +71,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if(tableNumberNavEl) tableNumberNavEl.textContent = tableNumber;
     if(currentOrderTableNumEl) currentOrderTableNumEl.textContent = tableNumber;
     cartStorageKey = `${CART_STORAGE_KEY_PREFIX}${tableNumber}`;
+
+    // --- Cart Animation ---
+    function triggerCartShake() {
+        if (fabCartButton) {
+            fabCartButton.classList.add('cart-shake');
+            setTimeout(() => {
+                fabCartButton.classList.remove('cart-shake');
+            }, 300);
+        }
+        if (navbarCartIconContainer) {
+            navbarCartIconContainer.classList.add('cart-shake');
+            setTimeout(() => {
+                navbarCartIconContainer.classList.remove('cart-shake');
+            }, 300);
+        }
+    }
 
     // --- Cart Logic ---
     function loadCartFromStorage() {
@@ -89,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCart();
         saveCartToStorage();
         showUserMessage(`เพิ่ม '${menuItem.Name}' ลงในตะกร้าแล้ว`, "success");
+        triggerCartShake(); // เรียก animation
     }
 
     function updateQuantity(itemId, change) {
@@ -121,7 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (cart.length === 0) {
             cartItemsDisplay.innerHTML = '<p class="text-muted fst-italic">ตะกร้ายังว่างอยู่</p>';
-            submitOrderBtn.disabled = true;
+            if(openConfirmOrderModalBtn) openConfirmOrderModalBtn.disabled = true;
+            if(clearCartBtn) clearCartBtn.style.display = 'none';
         } else {
             const ul = document.createElement('ul');
             ul.className = 'list-group list-group-flush';
@@ -151,7 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemCount += item.quantity;
             });
             cartItemsDisplay.appendChild(ul);
-            submitOrderBtn.disabled = false;
+            if(openConfirmOrderModalBtn) openConfirmOrderModalBtn.disabled = false;
+            if(clearCartBtn) clearCartBtn.style.display = 'inline-block';
 
             ul.querySelectorAll('.decrease-qty-btn').forEach(btn => btn.addEventListener('click', e => updateQuantity(e.currentTarget.dataset.itemid, -1)));
             ul.querySelectorAll('.increase-qty-btn').forEach(btn => btn.addEventListener('click', e => updateQuantity(e.currentTarget.dataset.itemid, 1)));
@@ -164,9 +199,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if(navCartTotalEl) navCartTotalEl.textContent = total.toFixed(2);
         if(fabCartCountEl) {
             fabCartCountEl.textContent = itemCount;
-            fabCartCountEl.style.display = itemCount > 0 ? 'inline-flex' : 'none';
+            fabCartCountEl.style.display = itemCount > 0 ? 'flex' : 'none'; // ใช้ flex เพื่อจัด badge กึ่งกลาง
         }
     }
+
+    // --- Clear Cart Logic ---
+    function handleClearCart() {
+        if (cart.length > 0 && confirm("คุณต้องการล้างสินค้าทั้งหมดในตะกร้าใช่หรือไม่?")) {
+            cart = [];
+            saveCartToStorage();
+            renderCart();
+            showUserMessage("ล้างตะกร้าสินค้าเรียบร้อยแล้ว", "info");
+        }
+    }
+    if (clearCartBtn) {
+        clearCartBtn.addEventListener('click', handleClearCart);
+    }
+
 
     // --- Item Note Modal Logic ---
     function handleOpenNoteModal(itemId) {
@@ -281,7 +330,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (itemsToRender.length === 0) {
                 menuContainer.innerHTML = `<p class="text-muted text-center col-12">ไม่มีรายการอาหารในหมวดหมู่ "${selectedCategory}"</p>`;
             } else {
-                // ถ้าเลือกหมวดหมู่เฉพาะ ไม่ต้องแสดง header หมวดหมู่อีก
                 itemsToRender.forEach(item => renderSingleMenuItem(item));
             }
         }
@@ -292,12 +340,13 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="col">
                 <div class="card h-100 menu-card-no-image shadow-sm">
                     <div class="card-body">
-                        <div> <div class="menu-item-top-row">
+                        <div>
+                            <div class="menu-item-top-row">
                                 <h5 class="card-title mb-0">${item.Name}</h5>
                                 <div class="price-button-group">
                                     <span class="card-text price">${parseFloat(item.Price).toFixed(2)} บ.</span>
                                     <button class="btn btn-sm btn-outline-secondary add-to-cart-btn ms-2">
-                                        <i class="bi bi-cart-plus"></i>
+                                        <i class="bi bi-plus-circle-fill"></i>
                                     </button>
                                 </div>
                             </div>
@@ -318,39 +367,59 @@ document.addEventListener('DOMContentLoaded', () => {
         menuContainer.appendChild(cardElement);
     }
 
-    // --- Order Submission Logic ---
-    submitOrderBtn.addEventListener('click', async () => {
+    // --- Confirm Order Modal & Submission Logic ---
+    function populateConfirmOrderModal() {
+        if (!modalOrderSummaryItemsEl || !modalOrderTotalEl || !modalTableNumberEl) return;
+
+        if(modalTableNumberEl) modalTableNumberEl.textContent = tableNumber;
+        modalOrderSummaryItemsEl.innerHTML = '';
+        let total = 0;
+
         if (cart.length === 0) {
-            showUserMessage("กรุณาเลือกรายการอาหารก่อนทำการสั่งซื้อ", "warning");
-            return;
-        }
-        if (!confirm("คุณต้องการยืนยันการสั่งซื้อรายการเหล่านี้ใช่หรือไม่?")) {
-            return;
-        }
-        // cartToOrderPayload จะจัดการเรื่อง disable/enable ปุ่ม และ spinner text
-        const payload = cartToOrderPayload(); // รับ payload และจัดการ UI ภายใน
-        const result = await fetchData("submitOrder", {}, 'POST', payload, false);
-
-        // Restore button state (ย้ายมาทำหลังจาก fetchData เสร็จสิ้น)
-        submitOrderBtn.disabled = (cart.length === 0); // Re-enable based on cart state
-        submitOrderBtn.innerHTML = '<i class="bi bi-check-circle-fill btn-icon"></i>ยืนยันการสั่งซื้อ';
-
-
-        if (result && result.success) {
-            showUserMessage(`สั่งอาหารสำเร็จ! ${result.message || ''}`, "success");
-            cart = [];
-            saveCartToStorage();
-            renderCart();
-            loadCurrentTableOrders(true);
+            modalOrderSummaryItemsEl.innerHTML = '<p class="text-muted">ไม่มีรายการในตะกร้า</p>';
         } else {
-            showUserMessage("เกิดข้อผิดพลาดในการสั่งอาหาร: " + (result ? result.message : "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้"), "danger");
+            const ul = document.createElement('ul');
+            ul.className = 'list-group list-group-flush';
+            cart.forEach(item => {
+                const itemSubtotal = item.price * item.quantity;
+                const li = document.createElement('li');
+                li.className = 'list-group-item px-0';
+                li.innerHTML = `
+                    <div>
+                        <strong>${item.name}</strong> x ${item.quantity}
+                        <span class="float-end">${itemSubtotal.toFixed(2)} บ.</span>
+                    </div>
+                    ${item.note ? `<small class="text-muted d-block fst-italic" style="margin-left: 10px;">- ${item.note}</small>` : ''}
+                `;
+                ul.appendChild(li);
+                total += itemSubtotal;
+            });
+            modalOrderSummaryItemsEl.appendChild(ul);
         }
-    });
+        modalOrderTotalEl.textContent = total.toFixed(2);
+    }
 
-    function cartToOrderPayload() {
-        // Disable button and show loading text when starting to prepare payload
-        submitOrderBtn.disabled = true;
-        submitOrderBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังส่ง...`;
+    if (openConfirmOrderModalBtn && confirmOrderModalInstance) {
+        openConfirmOrderModalBtn.addEventListener('click', () => {
+            if (cart.length > 0) {
+                populateConfirmOrderModal();
+                confirmOrderModalInstance.show();
+            } else {
+                showUserMessage("ตะกร้าสินค้าว่างเปล่า กรุณาเลือกรายการอาหารก่อน", "warning");
+            }
+        });
+    }
+
+    async function handleSubmitOrderFinal() {
+        if (cart.length === 0) {
+            showUserMessage("ตะกร้าสินค้าว่างเปล่า", "warning");
+            if (confirmOrderModalInstance) confirmOrderModalInstance.hide();
+            return;
+        }
+
+        submitOrderFinalBtn.disabled = true;
+        const originalButtonText = submitOrderFinalBtn.innerHTML;
+        submitOrderFinalBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังส่ง...`;
 
         const payload = {
             tableNumber: tableNumber,
@@ -360,11 +429,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 note: item.note || ""
             }))
         };
-        // The button text and disabled state will be restored in the submitOrderBtn event listener
-        // AFTER fetchData completes.
-        return payload;
+
+        const result = await fetchData("submitOrder", {}, 'POST', payload, false);
+
+        submitOrderFinalBtn.disabled = false;
+        submitOrderFinalBtn.innerHTML = originalButtonText;
+        if (confirmOrderModalInstance) confirmOrderModalInstance.hide();
+
+        if (result && result.success) {
+            showUserMessage(`สั่งอาหารสำเร็จ! ${result.message || ''}`, "success");
+            cart = [];
+            saveCartToStorage();
+            renderCart();
+            loadCurrentTableOrders(true);
+        } else {
+            showUserMessage("เกิดข้อผิดพลาดในการสั่งอาหาร: " + (result ? (result.message || result.error) : "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้"), "danger");
+        }
     }
 
+    if (submitOrderFinalBtn) {
+        submitOrderFinalBtn.addEventListener('click', handleSubmitOrderFinal);
+    }
 
     // --- Current Order Display Logic ---
     async function loadCurrentTableOrders(isInitialLoad = false) {
@@ -383,16 +468,13 @@ document.addEventListener('DOMContentLoaded', () => {
             orders.forEach(item => {
                 const li = document.createElement('li');
                 li.className = 'list-group-item d-flex justify-content-between align-items-start px-0 py-2';
-
                 let itemInfoHtml = `<div class="me-auto">
                                         <span class="fw-bold">${item.ItemName} x ${item.Quantity}</span>`;
                 if (item.ItemNote) {
                     itemInfoHtml += `<small class="cart-item-note d-block"><strong>โน้ต:</strong> ${item.ItemNote}</small>`;
                 }
-                itemInfoHtml += `<small class="text-muted d-block">(สถานะ: ${item.Status})</small>
-                                   </div>`;
+                itemInfoHtml += `<small class="text-muted d-block">(สถานะ: ${item.Status})</small></div>`;
                 let priceHtml = `<span class="badge bg-light text-dark p-2">${parseFloat(item.Subtotal).toFixed(2)} บ.</span>`;
-
                 li.innerHTML = itemInfoHtml + priceHtml;
                 ul.appendChild(li);
                 currentTotal += parseFloat(item.Subtotal);
@@ -418,11 +500,10 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCartFromStorage();
     loadCurrentTableOrders(true);
 
-    // Clear existing interval if any, before setting a new one
     if (window.loadCurrentTableOrdersIntervalId) {
         clearInterval(window.loadCurrentTableOrdersIntervalId);
     }
     window.loadCurrentTableOrdersIntervalId = setInterval(() => {
         loadCurrentTableOrders(false);
-    }, 60000); // อัปเดตรายการที่สั่งทุก 1 นาที
+    }, 60000);
 });
